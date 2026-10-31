@@ -18,8 +18,9 @@ namespace
     }
 
     // Finds the first node whose name/commonName/definition contains every word in
-    // requiredWords, so tests don't depend on a specific node code that could move
-    // or disappear across VIS versions
+    // requiredWords as a whole stemmed word (matching how SearchIndex itself tokenizes
+    // and stems text), not merely as a substring - "pump" must not match "pumping",
+    // since search("pumps") stems to "pump" and would never match that node
     const dnv::vista::sdk::GmodNode* findFirstNodeWithWords(
         const dnv::vista::sdk::Gmod& gmod, const std::vector<std::string>& requiredWords)
     {
@@ -39,8 +40,13 @@ namespace
             }
             haystack = qvistools::core::utils::toLower(haystack);
 
+            const auto haystackWords{ qvistools::core::utils::splitWords(haystack) };
+
             const bool hasAllWords{ std::all_of(requiredWords.begin(), requiredWords.end(), [&](const auto& word) {
-                return haystack.find(word) != std::string::npos;
+                const auto stemmedWord{ qvistools::core::utils::stemSimple(word) };
+                return std::any_of(haystackWords.begin(), haystackWords.end(), [&](const auto& haystackWord) {
+                    return qvistools::core::utils::stemSimple(haystackWord) == stemmedWord;
+                });
             }) };
 
             if (hasAllWords)
@@ -174,6 +180,32 @@ TEST_SUITE("SearchIndex")
         }) };
 
         REQUIRE(it != matches.end());
+    }
+
+    TEST_CASE("search matches a singular field through a plural search term via stemming")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto* node{ findFirstNodeWithWords(gmod, { "pump" }) };
+        REQUIRE(node != nullptr);
+
+        const qvistools::core::vis::SearchIndex index{ gmod };
+
+        CHECK(containsNode(index.search("pumps"), node));
+    }
+
+    TEST_CASE("search requires every stemmed word of a multi-word term to match")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto* node{ findFirstNodeWithWords(gmod, { "cooling", "pump" }) };
+        REQUIRE(node != nullptr);
+
+        const qvistools::core::vis::SearchIndex index{ gmod };
+
+        CHECK(containsNode(index.search("cooling pump"), node));
     }
 
     TEST_CASE("search does not match a multi-word term when only some words are present")

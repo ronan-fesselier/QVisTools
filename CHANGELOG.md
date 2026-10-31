@@ -22,11 +22,13 @@
 - `qvistools::core::utils::naturalCompare()`: natural-order string comparison (numeric runs compared by value, not lexicographically), locale-independent and byte-order-correct (unsigned char comparison)
 - `qvistools::core::utils::toLower()`: ASCII lowercasing helper
 - `qvistools::core::utils::containsCaseInsensitive()`/`asciiEqualCaseInsensitive()`: ASCII case-insensitive substring/byte matching without allocating a lowercased copy
+- `qvistools::core::utils::stemSimple()`: strips a trailing plural 's' from a lowercase word
+- `qvistools::core::utils::splitWords()`: splits a string into alphanumeric words
 
 - `qvistools::core::vis::effectiveNode()`: resolves the node whose children should be displayed in place of a node's own (transparent product type/selection substitution)
 - `qvistools::core::vis::sortedChildren()`: display-ready Gmod node children, with transparent product type/selection substitution and natural code ordering
 - `qvistools::core::vis::categoryOf()`: classifies a Gmod node into a display category (root, leaf, product type, function composition, group, selection)
-- `qvistools::core::vis::SearchIndex`: case-insensitive substring search over a Gmod's nodes (code, name, common name, definition), backed by a trigram index, reporting each match's parent and any skipped product-selection parent
+- `qvistools::core::vis::SearchIndex`: case-insensitive search over a Gmod's nodes (code, name, common name, definition), combining a trigram-accelerated substring match with a multi-word stemmed match (every word of the search term must match a whole stemmed word, so "cooling pump" matches an entry containing "cooling" and "pump"/"pumps" in any order), reporting each match's displayed parent
 
 #### GUI
 

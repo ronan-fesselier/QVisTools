@@ -14,14 +14,19 @@ namespace dnv::vista::sdk
 namespace qvistools::core::vis
 {
     /**
-     * @brief Case-insensitive substring search index over a Gmod's nodes
-     *        (code, name, common name, definition)
-     * @details Backed by a trigram index: each entry's text fields are split into
-     *          overlapping 3-character windows, mapped to the entries containing them.
-     *          A search first narrows candidates to entries sharing every trigram of the
-     *          search term, then confirms with an exact substring check on those candidates
-     *          only - avoiding a full scan of every node for typical (length >= 3) terms.
-     *          Terms shorter than 3 characters are not selective enough to index and fall
+     * @brief Case-insensitive search index over a Gmod's nodes (code, name, common
+     *        name, definition)
+     * @details Two complementary strategies, combined like DNV's own Lucene + Basic
+     *          search strategies, each backed by its own inverted index so that
+     *          neither strategy can exclude a candidate the other would have found:
+     *          - Stemmed-word match: free-text fields (not the code) are split into
+     *            words, each stripped of a trailing plural 's'. A match requires EVERY
+     *            stemmed word of the term to appear, so "cooling pump" matches "cooling"
+     *            + "pump"/"pumps" in any field and order, but not a partial word like "pum"
+     *          - Substring match: the term matches as a literal substring of a field, so
+     *            "C101" matches "C101.31" even though neither is a whole word
+     *          Candidates come from the union of both indexes, confirmed by exact checks -
+     *          avoiding a full scan for typical (length >= 3) terms. Shorter terms fall
      *          back to a full scan.
      *
      *          Every node is indexed by its own text fields, but a Match is only reported
@@ -58,6 +63,7 @@ namespace qvistools::core::vis
             std::string_view name;
             std::string_view commonName;
             std::string_view definition;
+            std::vector<std::string> stemmedWords;
         };
 
         [[nodiscard]] bool entryMatches(const Entry& entry, std::string_view termLower) const;
@@ -66,5 +72,6 @@ namespace qvistools::core::vis
 
         std::vector<Entry> m_entries;
         std::unordered_map<std::string, std::vector<std::size_t>> m_trigramIndex;
+        std::unordered_map<std::string, std::vector<std::size_t>> m_stemIndex;
     };
 } // namespace qvistools::core::vis
