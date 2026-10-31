@@ -10,6 +10,7 @@ Qt desktop toolkit for DNV's Vessel Information Structure (VIS).
 
 - **CMake** 3.25 or later
 - **C++20 compiler**
+- **Qt6** (Widgets) 6.5 or later
 
 ### Build from Source
 
@@ -24,3 +25,7 @@ cmake --build build
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### Third-party dependencies licenses
+
+- **[Qt6](https://www.qt.io)**: Widgets module (GNU Lesser General Public License v3) - linked dynamically

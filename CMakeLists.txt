@@ -25,6 +25,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_DEBUG_POSTFIX "-d")
 
+set(CMAKE_AUTOMOC ON)
+
 #----------------------------------------------
 # Directory paths
 #----------------------------------------------
@@ -54,4 +56,5 @@ option(QVIS_TOOLS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+include(QVisToolsDependencies)
 include(QVisToolsTargets)

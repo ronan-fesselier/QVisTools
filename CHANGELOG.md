@@ -4,7 +4,7 @@
 
 ### Added
 
-- NIL
+- `Qt6 Widgets` dependency
 
 ### Changed
 
