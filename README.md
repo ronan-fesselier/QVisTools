@@ -24,6 +24,13 @@ cmake --build build
 
 The `dnv-vista-sdk` dependency is resolved via `find_package`, falling back to `FetchContent` if not found on the system.
 
+### Running Tests
+
+```bash
+cmake -B build -S . -DQVIS_TOOLS_BUILD_TESTS=ON
+cmake --build build
+ctest --test-dir build
+```
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this project.
@@ -37,3 +44,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **[DNV Vista SDK](https://github.com/dnv-opensource/vista-sdk)**: C++ implementation of DNV Vista SDK for VIS and ISO 19848 standard (MIT License). Built from [ronan-fesselier/vista-sdk](https://github.com/ronan-fesselier/vista-sdk/tree/feature/cpp/cpp) (C++ fork)
 - **[Qt6](https://www.qt.io)**: Widgets module (GNU Lesser General Public License v3) - linked dynamically
 - **[Icons8](https://icons8.com)**: Icons used throughout the application
+
+### Development dependencies licenses
+
+- **[doctest](https://github.com/doctest/doctest)**: Testing framework (MIT License) - Development only

@@ -50,6 +50,7 @@ endif()
 # Build options
 #----------------------------------------------
 
+option(QVIS_TOOLS_BUILD_TESTS        "Build QVisTools core tests"        OFF)
 option(QVIS_TOOLS_WARNINGS           "Enable strict compiler warnings"   OFF)
 option(QVIS_TOOLS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
@@ -68,3 +69,12 @@ include(QVisToolsDependencies)
 #----------------------------------------------
 
 add_subdirectory(src)
+
+#----------------------------------------------
+# Tests
+#----------------------------------------------
+
+if(QVIS_TOOLS_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
