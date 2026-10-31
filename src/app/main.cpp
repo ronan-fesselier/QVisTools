@@ -1,3 +1,4 @@
+#include "app/detail/QStringUtils.h"
 #include "app/MainWindow/MainWindow.h"
 
 #include "qvistools/Version.h"
@@ -34,7 +35,7 @@ int main(int argc, char* argv[])
         QMessageBox::critical(
             nullptr,
             QCoreApplication::translate("QVisTools", "Startup error"),
-            QString::fromUtf8(e.what() != nullptr ? e.what() : "Unknown error"));
+            qvistools::detail::toQString(e.what() != nullptr ? e.what() : "Unknown error"));
 
         return 1;
     }

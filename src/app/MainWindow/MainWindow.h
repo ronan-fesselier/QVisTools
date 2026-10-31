@@ -9,6 +9,8 @@ namespace dnv::vista::sdk
 
 namespace qvistools
 {
+    class GmodExplorer;
+
     class MainWindow final : public QMainWindow
     {
         Q_OBJECT
@@ -20,5 +22,7 @@ namespace qvistools
         void setupStatusBar(const dnv::vista::sdk::Gmod& gmod);
         void setupFileMenu();
         void setupHelpMenu();
+
+        GmodExplorer* m_explorer;
     };
 } // namespace qvistools

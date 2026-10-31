@@ -1,26 +1,38 @@
 #include "MainWindow.h"
 
+#include "app/detail/QStringUtils.h"
+#include "app/GmodExplorer/GmodExplorer.h"
+
 #include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/Version.h>
 
 #include <QAction>
 #include <QApplication>
 #include <QDialog>
+#include <QFrame>
 #include <QLabel>
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QVBoxLayout>
 
-#include <string>
+#include <iterator>
 
 namespace qvistools
 {
     MainWindow::MainWindow(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
-        : QMainWindow{ parent }
+        : QMainWindow{ parent },
+          m_explorer{ new GmodExplorer{ gmod, this } }
     {
         setupStatusBar(gmod);
         setupFileMenu();
         setupHelpMenu();
+
+        auto* centralWidget{ new QWidget{ this } };
+        auto* layout{ new QVBoxLayout{ centralWidget } };
+        layout->setContentsMargins(8, 8, 8, 8);
+        layout->addWidget(m_explorer);
+
+        setCentralWidget(centralWidget);
     }
 
     void MainWindow::setupStatusBar(const dnv::vista::sdk::Gmod& gmod)
@@ -34,10 +46,17 @@ namespace qvistools
             }
         });
 
-        const std::string version{ dnv::vista::sdk::VisVersions::toString(gmod.version()) };
-
-        auto* versionLabel{ new QLabel{ tr("Gmod %1").arg(QString::fromStdString(version)) } };
+        auto* versionLabel{ new QLabel{ this } };
+        versionLabel->setFrameStyle(QFrame::NoFrame);
         statusBar()->addPermanentWidget(versionLabel);
+
+        const auto updateVersionLabel{ [versionLabel](const dnv::vista::sdk::Gmod& g) {
+            const auto version{ dnv::vista::sdk::VisVersions::toString(g.version()) };
+            const auto nodeCount{ std::distance(g.begin(), g.end()) };
+            versionLabel->setText(tr("Gmod %1 (%2 nodes)").arg(detail::toQString(version)).arg(nodeCount));
+        } };
+        updateVersionLabel(gmod);
+        QObject::connect(m_explorer, &GmodExplorer::gmodChanged, this, updateVersionLabel);
     }
 
     void MainWindow::setupFileMenu()

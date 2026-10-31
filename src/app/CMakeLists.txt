@@ -8,6 +8,9 @@ add_executable(${PROJECT_NAME}
 
     main.cpp
 
+    GmodExplorer/GmodExplorer.cpp
+    GmodExplorer/GmodTreeModel.cpp
+
     MainWindow/MainWindow.cpp
 )
 
