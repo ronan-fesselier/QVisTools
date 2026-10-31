@@ -9,20 +9,26 @@
 
 namespace qvistools::core::vis
 {
-    std::vector<const dnv::vista::sdk::GmodNode*> sortedChildren(const dnv::vista::sdk::GmodNode& node)
+    const dnv::vista::sdk::GmodNode* effectiveNode(const dnv::vista::sdk::GmodNode& node)
     {
-        const auto* effectiveNode{ &node };
         if (const auto productType{ node.productType() }; productType.has_value())
         {
-            effectiveNode = *productType;
+            return *productType;
         }
-        else if (const auto productSelection{ node.productSelection() }; productSelection.has_value())
+        if (const auto productSelection{ node.productSelection() }; productSelection.has_value())
         {
-            effectiveNode = *productSelection;
+            return *productSelection;
         }
 
+        return &node;
+    }
+
+    std::vector<const dnv::vista::sdk::GmodNode*> sortedChildren(const dnv::vista::sdk::GmodNode& node)
+    {
+        const auto* resolved{ effectiveNode(node) };
+
         std::vector<const dnv::vista::sdk::GmodNode*> children(
-            effectiveNode->children().begin(), effectiveNode->children().end());
+            resolved->children().begin(), resolved->children().end());
 
         std::stable_sort(
             children.begin(),
