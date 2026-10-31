@@ -25,6 +25,8 @@ namespace qvistools
         enum Role
         {
             NodeRole = Qt::UserRole + 1,
+            ProductNodeRole,
+            SkippedParentNodeRole
         };
 
         explicit GmodTreeModel(const dnv::vista::sdk::Gmod& gmod, QObject* parent = nullptr);
@@ -39,10 +41,14 @@ namespace qvistools
         struct NodeHandle
         {
             const dnv::vista::sdk::GmodNode* node;
-            QModelIndex parentIndex;
+            const dnv::vista::sdk::GmodNode* parentNode;
+            QPersistentModelIndex parentIndex;
         };
 
-        NodeHandle* handleFor(const dnv::vista::sdk::GmodNode& node, const QModelIndex& parentIndex) const;
+        NodeHandle* handleFor(
+            const dnv::vista::sdk::GmodNode& node,
+            const dnv::vista::sdk::GmodNode* parentNode,
+            const QModelIndex& parentIndex) const;
 
         const std::vector<const dnv::vista::sdk::GmodNode*>& cachedSortedChildren(
             const dnv::vista::sdk::GmodNode& node) const;

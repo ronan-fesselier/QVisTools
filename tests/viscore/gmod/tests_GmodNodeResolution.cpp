@@ -21,6 +21,40 @@ namespace
 
 TEST_SUITE("GmodNode resolution")
 {
+    TEST_CASE("effectiveNode resolves to the product type child when applicable")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto& node{ gmod["411.3"] };
+        REQUIRE(node.productType().has_value());
+
+        CHECK(viscore::gmod::effectiveNode(node) == *node.productType());
+    }
+
+    TEST_CASE("effectiveNode resolves to the product selection child when applicable")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto& node{ gmod["411.2"] };
+        REQUIRE(node.productSelection().has_value());
+
+        CHECK(viscore::gmod::effectiveNode(node) == *node.productSelection());
+    }
+
+    TEST_CASE("effectiveNode resolves to the node itself when no substitution applies")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto& node{ gmod.rootNode() };
+        REQUIRE_FALSE(node.productType().has_value());
+        REQUIRE_FALSE(node.productSelection().has_value());
+
+        CHECK(viscore::gmod::effectiveNode(node) == &node);
+    }
+
     TEST_CASE("sortedChildren substitutes a node with its product type child")
     {
         const auto& vis{ dnv::vista::sdk::VIS::instance() };

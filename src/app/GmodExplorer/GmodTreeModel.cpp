@@ -28,7 +28,7 @@ namespace qvistools
                 return {};
             }
 
-            auto* handle{ handleFor(*m_rootNode, parent) };
+            auto* handle{ handleFor(*m_rootNode, nullptr, parent) };
             return createIndex(row, column, handle);
         }
 
@@ -41,7 +41,7 @@ namespace qvistools
             return {};
         }
 
-        auto* handle{ handleFor(*children[static_cast<size_t>(row)], parent) };
+        auto* handle{ handleFor(*children[static_cast<size_t>(row)], parentNode, parent) };
 
         return createIndex(row, column, handle);
     }
@@ -101,20 +101,39 @@ namespace qvistools
             }
             case NodeRole:
                 return QVariant::fromValue(node);
+            case ProductNodeRole:
+            {
+                const auto productType{ node->productType() };
+                return QVariant::fromValue(productType.has_value() ? *productType : nullptr);
+            }
+            case SkippedParentNodeRole:
+            {
+                const auto* parentNode{ handle->parentNode };
+                if (parentNode == nullptr || !parentNode->productSelection().has_value())
+                {
+                    return {};
+                }
+
+                return QVariant::fromValue(parentNode);
+            }
             default:
                 return {};
         }
     }
 
     GmodTreeModel::NodeHandle* GmodTreeModel::handleFor(
-        const dnv::vista::sdk::GmodNode& node, const QModelIndex& parentIndex) const
+        const dnv::vista::sdk::GmodNode& node,
+        const dnv::vista::sdk::GmodNode* parentNode,
+        const QModelIndex& parentIndex) const
     {
-        const auto key{ std::make_pair(&node, QPersistentModelIndex{ parentIndex }) };
+        QPersistentModelIndex persistentParentIndex{ parentIndex };
+        const auto key{ std::make_pair(&node, persistentParentIndex) };
 
         auto it{ m_handles.find(key) };
         if (it == m_handles.end())
         {
-            auto handle{ std::make_unique<NodeHandle>(NodeHandle{ &node, parentIndex }) };
+            auto handle{ std::make_unique<NodeHandle>(
+                NodeHandle{ &node, parentNode, std::move(persistentParentIndex) }) };
             it = m_handles.emplace(key, std::move(handle)).first;
         }
 
@@ -124,12 +143,15 @@ namespace qvistools
     const std::vector<const dnv::vista::sdk::GmodNode*>& GmodTreeModel::cachedSortedChildren(
         const dnv::vista::sdk::GmodNode& node) const
     {
-        auto it{ m_sortedChildrenCache.find(&node) };
+        const auto* effectiveNode{ viscore::gmod::effectiveNode(node) };
+
+        auto it{ m_sortedChildrenCache.find(effectiveNode) };
         if (it != m_sortedChildrenCache.end())
         {
             return it->second;
         }
 
-        return m_sortedChildrenCache.emplace(&node, viscore::gmod::sortedChildren(node)).first->second;
+        return m_sortedChildrenCache.emplace(effectiveNode, viscore::gmod::sortedChildren(*effectiveNode))
+            .first->second;
     }
 } // namespace qvistools
