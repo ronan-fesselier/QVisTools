@@ -15,6 +15,7 @@ namespace dnv::vista::sdk
 
 namespace qvistools::gui
 {
+    class GmodSearchBar;
     class GmodTreeModel;
 
     class GmodExplorer final : public QGroupBox
@@ -42,6 +43,7 @@ namespace qvistools::gui
         QTreeView* m_treeView;
         QPushButton* m_collapseAllButton;
         QComboBox* m_versionCombo;
+        GmodSearchBar* m_searchBar;
 
     protected:
         virtual bool eventFilter(QObject* watched, QEvent* event) override;

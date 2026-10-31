@@ -13,6 +13,8 @@ add_executable(${PROJECT_NAME}
 
     gui/MainWindow/MainWindow.cpp
 
+    gui/Search/GmodSearchBar.cpp
+
     gui/Shared/GmodChipRenderer.cpp
 )
 

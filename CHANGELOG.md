@@ -37,8 +37,9 @@
 - `GmodTreeModel`: `QAbstractItemModel` exposing the Gmod tree, with sorted/substituted children caching, and `ProductNodeRole`/`SkippedParentNodeRole` exposing substitution context to the view
 - `GmodTreeItemDelegate`: renders Gmod nodes as category-colored chips (with skipped-parent and product-type/selection context) followed by the node's display name
 
-- `GmodExplorer`: tree view over the Gmod, with a VIS version selector and a collapse-all action
+- `GmodExplorer`: tree view over the Gmod, with a VIS version selector, a collapse-all action and a search bar
 - `GmodChipRenderer`: maps a node category to a display color and picks a readable (black/white) text color for it
+- `GmodSearchBar`: text search over the Gmod backed by `core::vis::SearchIndex`, showing matches in an inline results list
 
 ### Changed
 
