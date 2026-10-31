@@ -1,6 +1,7 @@
 #include "GmodExplorer.h"
 
 #include "app/gui/detail/QStringUtils.h"
+#include "app/gui/GmodTree/GmodTreeItemDelegate.h"
 #include "app/gui/GmodTree/GmodTreeModel.h"
 
 #include <dnv/vista/sdk/core/VIS.h>
@@ -39,6 +40,7 @@ namespace qvistools::gui
     {
         m_treeView->setModel(m_model);
         m_treeView->setUniformRowHeights(true);
+        m_treeView->setItemDelegate(new GmodTreeItemDelegate{ m_treeView });
         m_treeView->setHeaderHidden(true);
         m_treeView->installEventFilter(this);
     }

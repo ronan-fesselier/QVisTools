@@ -99,6 +99,8 @@ namespace qvistools::gui
                    "SDK</a>:</td><td><b>%2</b></td><td>&nbsp;(MIT)</td></tr>"
                    "<tr><td align=\"right\"><a href=\"https://www.qt.io\">Qt</a>:</td><td><b>%3</b></td>"
                    "<td>&nbsp;(LGPLv3)</td></tr>"
+                   "<tr><td align=\"right\">Icons:</td><td colspan=\"2\"><a "
+                   "href=\"https://icons8.com\">Icons8</a></td></tr>"
                    "</table>")
                     .arg(
                         QApplication::applicationVersion(),
