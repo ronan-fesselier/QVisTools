@@ -1,8 +1,14 @@
-#include <iostream>
+#include <QApplication>
+#include <QMainWindow>
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::cout << "Hello, QVisTools!\n";
+    QApplication app{ argc, argv };
+    QApplication::setApplicationName(QStringLiteral("QVisTools"));
 
-    return 0;
+    QMainWindow window;
+    window.setWindowTitle(QStringLiteral("QVisTools"));
+    window.show();
+
+    return app.exec();
 }

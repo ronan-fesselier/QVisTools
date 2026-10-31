@@ -56,6 +56,7 @@ option(QVIS_TOOLS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(QVisToolsWarnings)
+include(QVisToolsDependencies)
 
 #----------------------------------------------
 # Sources

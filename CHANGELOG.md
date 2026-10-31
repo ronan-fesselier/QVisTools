@@ -4,7 +4,9 @@
 
 ### Added
 
-- NIL
+#### Dependencies
+
+- Qt6 (Widgets)
 
 ### Changed
 
