@@ -9,6 +9,8 @@
 - `Qt6::Widgets`
 - `dnv::vista::sdk`, resolved via `find_package` falling back to `FetchContent`
 
+- `doctest`, fetched when `QVIS_TOOLS_BUILD_TESTS` is enabled (development only)
+
 #### Build
 
 - `qvistools::version()`: runtime-queryable project version, generated from `CMakeLists.txt`'s `project(VERSION ...)`
