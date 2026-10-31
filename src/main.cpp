@@ -1,14 +1,8 @@
-#include <QApplication>
-#include <QMainWindow>
+#include "app/App.h"
 
 int main(int argc, char* argv[])
 {
-    QApplication app{ argc, argv };
+    qvistools::App app;
 
-    QMainWindow window;
-    window.setWindowTitle("QVisTools");
-    window.setMinimumSize(800, 600);
-    window.show();
-
-    return app.exec();
+    return app.run(argc, argv);
 }

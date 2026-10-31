@@ -1,0 +1,35 @@
+/**
+ * @file Version.h
+ * @brief Generated version information for QVisTools
+ * @details This file is generated from Version.h.in by CMake configure_file()
+ *          Do not edit the generated Version.h directly
+ */
+
+#pragma once
+
+// clang-format off
+#ifndef QVIS_TOOLS_VERSION_MAJOR
+    #define QVIS_TOOLS_VERSION_MAJOR @QVIS_TOOLS_VERSION_MAJOR@
+#endif
+#ifndef QVIS_TOOLS_VERSION_MINOR
+    #define QVIS_TOOLS_VERSION_MINOR @QVIS_TOOLS_VERSION_MINOR@
+#endif
+#ifndef QVIS_TOOLS_VERSION_PATCH
+    #define QVIS_TOOLS_VERSION_PATCH @QVIS_TOOLS_VERSION_PATCH@
+#endif
+#ifndef QVIS_TOOLS_VERSION_STRING
+    #define QVIS_TOOLS_VERSION_STRING "@QVIS_TOOLS_VERSION@"
+#endif
+// clang-format on
+
+namespace qvistools
+{
+    /**
+     * @brief Return the QVisTools application version as a string
+     * @return Version string, matching QVIS_TOOLS_VERSION_STRING
+     */
+    [[nodiscard]] inline constexpr const char* version() noexcept
+    {
+        return QVIS_TOOLS_VERSION_STRING;
+    }
+} // namespace qvistools

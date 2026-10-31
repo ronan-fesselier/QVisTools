@@ -35,6 +35,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+set(QVIS_TOOLS_DIR        "${PROJECT_SOURCE_DIR}" CACHE PATH "QVisTools root directory")
+set(QVIS_TOOLS_SOURCE_DIR "${QVIS_TOOLS_DIR}/src" CACHE PATH "QVisTools source directory")
+
+
 #----------------------------------------------
 # Build type
 #----------------------------------------------
@@ -56,5 +60,7 @@ option(QVIS_TOOLS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+include(QVisToolsVersion)
 include(QVisToolsDependencies)
+include(QVisToolsSources)
 include(QVisToolsTargets)

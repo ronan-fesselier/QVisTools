@@ -23,19 +23,17 @@ target_compile_options(QVisTools-warnings
 )
 
 #----------------------------------------------
-# Sources
-#----------------------------------------------
-
-set(APP_SOURCES
-    src/main.cpp
-)
-
-#----------------------------------------------
 # Executable
 #----------------------------------------------
 
-add_executable(${PROJECT_NAME}
-    ${APP_SOURCES}
+add_executable(${PROJECT_NAME} WIN32
+    ${QVIS_TOOLS_SOURCES}
+)
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        ${QVIS_TOOLS_SOURCE_DIR}
+        ${QVIS_TOOLS_GENERATED_INCLUDE_DIR}
 )
 
 set_target_properties(${PROJECT_NAME}
