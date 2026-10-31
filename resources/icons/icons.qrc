@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="collapse-all.svg">collapse-all.svg</file>
+    </qresource>
+</RCC>

@@ -6,7 +6,7 @@
 # Qt6
 #----------------------------------------------
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Widgets Svg)
 
 #----------------------------------------------
 # dnv-vista-sdk

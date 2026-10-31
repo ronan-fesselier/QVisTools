@@ -1,5 +1,7 @@
 #include "MainWindow.h"
 
+#include "detail/StringUtils.h"
+#include "gui/GmodTree/GmodTreeView.h"
 #include "qvistools/Version.h"
 
 #include <dnv/vista/sdk/core/Gmod.h>
@@ -18,11 +20,14 @@
 namespace qvistools::gui
 {
     MainWindow::MainWindow(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
-        : QMainWindow{ parent }
+        : QMainWindow{ parent },
+          m_treeView{ new GmodTreeView{ gmod, this } }
     {
         setupStatusBar(gmod);
         setupFileMenu();
         setupHelpMenu();
+
+        setCentralWidget(m_treeView);
     }
 
     void MainWindow::setupStatusBar(const dnv::vista::sdk::Gmod& gmod)
@@ -36,10 +41,16 @@ namespace qvistools::gui
             }
         });
 
-        const std::string version{ dnv::vista::sdk::VisVersions::toString(gmod.version()) };
-
-        auto* versionLabel{ new QLabel{ tr("Gmod %1").arg(QString::fromStdString(version)) } };
+        auto* versionLabel{ new QLabel{ this } };
         statusBar()->addPermanentWidget(versionLabel);
+
+        const auto updateVersionLabel{ [versionLabel](const dnv::vista::sdk::Gmod& g) {
+            const auto version{ dnv::vista::sdk::VisVersions::toString(g.version()) };
+            const auto nodeCount{ std::distance(g.begin(), g.end()) };
+            versionLabel->setText(tr("Gmod %1 (%2 nodes)").arg(detail::toQString(version)).arg(nodeCount));
+        } };
+        updateVersionLabel(gmod);
+        QObject::connect(m_treeView, &GmodTreeView::gmodChanged, this, updateVersionLabel);
     }
 
     void MainWindow::setupFileMenu()
@@ -82,9 +93,9 @@ namespace qvistools::gui
                    "<td>&nbsp;(LGPLv3)</td></tr>"
                    "</table>")
                     .arg(
-                        QString::fromUtf8(version()),
-                        QString::fromUtf8(dnv::vista::sdk::version()),
-                        QString::fromUtf8(qVersion())));
+                        detail::toQString(version()),
+                        detail::toQString(dnv::vista::sdk::version()),
+                        detail::toQString(qVersion())));
 
             auto* layout{ new QVBoxLayout{ dialog } };
             layout->setContentsMargins(24, 20, 24, 20);

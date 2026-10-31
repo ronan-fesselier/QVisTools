@@ -1,5 +1,6 @@
 #include "App.h"
 
+#include "detail/StringUtils.h"
 #include "gui/MainWindow/MainWindow.h"
 #include "qvistools/Version.h"
 
@@ -16,7 +17,7 @@ namespace qvistools
     {
         QApplication app{ argc, argv };
         QApplication::setApplicationName(QStringLiteral("QVisTools"));
-        QApplication::setApplicationVersion(QString::fromUtf8(version()));
+        QApplication::setApplicationVersion(detail::toQString(version()));
 
         try
         {

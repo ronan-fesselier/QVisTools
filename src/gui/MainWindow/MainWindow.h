@@ -9,6 +9,8 @@ namespace dnv::vista::sdk
 
 namespace qvistools::gui
 {
+    class GmodTreeView;
+
     class MainWindow final : public QMainWindow
     {
         Q_OBJECT
@@ -20,5 +22,7 @@ namespace qvistools::gui
         void setupStatusBar(const dnv::vista::sdk::Gmod& gmod);
         void setupFileMenu();
         void setupHelpMenu();
+
+        GmodTreeView* m_treeView;
     };
 } // namespace qvistools::gui

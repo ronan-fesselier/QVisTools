@@ -14,6 +14,9 @@
 
 - `MainWindow`: main window with status bar, File menu and Help menu
 
+- `GmodTreeView`: navigable Gmod tree panel
+- `GmodTreeModel`: lazy `QAbstractItemModel` over the Gmod DAG, naturally sorted, duplicate-safe expand/collapse state for nodes with multiple parents
+
 ### Changed
 
 - NIL
