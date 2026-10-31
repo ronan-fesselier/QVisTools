@@ -1,12 +1,75 @@
 #pragma once
 
+#include <algorithm>
 #include <cctype>
 #include <compare>
 #include <cstddef>
+#include <string>
 #include <string_view>
 
 namespace qvistools::core::utils
 {
+    /**
+     * @brief Lowercase an ASCII string
+     */
+    inline std::string toLower(std::string_view s)
+    {
+        std::string result{ s };
+        std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
+            return static_cast<char>(std::tolower(c));
+        });
+        return result;
+    }
+
+    /**
+     * @brief Check whether a byte, treated as ASCII, equals another byte ignoring case
+     */
+    inline bool asciiEqualCaseInsensitive(unsigned char a, unsigned char b)
+    {
+        const auto lower{ [](unsigned char c) {
+            return (c >= 'A' && c <= 'Z') ? static_cast<unsigned char>(c + ('a' - 'A')) : c;
+        } };
+        return lower(a) == lower(b);
+    }
+
+    /**
+     * @brief Check whether haystack contains needle as a substring, ignoring ASCII case
+     * @details Avoids allocating a lowercased copy of either argument - needed since
+     *          Entry stores string_view into the Gmod's own (mixed-case) text, not a
+     *          lowercased copy
+     */
+    inline bool containsCaseInsensitive(std::string_view haystack, std::string_view needle)
+    {
+        if (needle.empty())
+        {
+            return true;
+        }
+        if (needle.size() > haystack.size())
+        {
+            return false;
+        }
+
+        for (std::size_t i{ 0 }; i + needle.size() <= haystack.size(); ++i)
+        {
+            bool allMatch{ true };
+            for (std::size_t j{ 0 }; j < needle.size(); ++j)
+            {
+                if (!asciiEqualCaseInsensitive(
+                        static_cast<unsigned char>(haystack[i + j]), static_cast<unsigned char>(needle[j])))
+                {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @brief Check whether a byte is an ASCII digit
      * @details Unlike std::isdigit, this is never affected by the active C locale

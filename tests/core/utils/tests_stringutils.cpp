@@ -4,6 +4,37 @@
 
 TEST_SUITE("StringUtils")
 {
+    TEST_CASE("asciiEqualCaseInsensitive matches letters regardless of case")
+    {
+        CHECK(qvistools::core::utils::asciiEqualCaseInsensitive('a', 'A'));
+        CHECK(qvistools::core::utils::asciiEqualCaseInsensitive('Z', 'z'));
+        CHECK_FALSE(qvistools::core::utils::asciiEqualCaseInsensitive('a', 'b'));
+    }
+
+    TEST_CASE("asciiEqualCaseInsensitive leaves non-letter bytes unaffected by case folding")
+    {
+        CHECK(qvistools::core::utils::asciiEqualCaseInsensitive('5', '5'));
+        CHECK_FALSE(qvistools::core::utils::asciiEqualCaseInsensitive('5', '6'));
+    }
+
+    TEST_CASE("containsCaseInsensitive matches a substring regardless of case")
+    {
+        CHECK(qvistools::core::utils::containsCaseInsensitive("Reciprocating Pump", "pump"));
+        CHECK(qvistools::core::utils::containsCaseInsensitive("Reciprocating Pump", "RECIPROCATING"));
+        CHECK_FALSE(qvistools::core::utils::containsCaseInsensitive("Reciprocating Pump", "valve"));
+    }
+
+    TEST_CASE("containsCaseInsensitive treats an empty needle as always matching")
+    {
+        CHECK(qvistools::core::utils::containsCaseInsensitive("anything", ""));
+        CHECK(qvistools::core::utils::containsCaseInsensitive("", ""));
+    }
+
+    TEST_CASE("containsCaseInsensitive does not match a needle longer than the haystack")
+    {
+        CHECK_FALSE(qvistools::core::utils::containsCaseInsensitive("ab", "abc"));
+    }
+
     TEST_CASE("naturalCompare orders numeric runs by value, not lexicographically")
     {
         CHECK(qvistools::core::utils::naturalCompare("a2", "a10") == std::strong_ordering::less);

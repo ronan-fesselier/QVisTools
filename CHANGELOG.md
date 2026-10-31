@@ -20,10 +20,13 @@
 - `VIS` singleton initialization at startup, with Gmod resolved for the latest VIS version
 
 - `qvistools::core::utils::naturalCompare()`: natural-order string comparison (numeric runs compared by value, not lexicographically), locale-independent and byte-order-correct (unsigned char comparison)
+- `qvistools::core::utils::toLower()`: ASCII lowercasing helper
+- `qvistools::core::utils::containsCaseInsensitive()`/`asciiEqualCaseInsensitive()`: ASCII case-insensitive substring/byte matching without allocating a lowercased copy
 
 - `qvistools::core::vis::effectiveNode()`: resolves the node whose children should be displayed in place of a node's own (transparent product type/selection substitution)
 - `qvistools::core::vis::sortedChildren()`: display-ready Gmod node children, with transparent product type/selection substitution and natural code ordering
 - `qvistools::core::vis::categoryOf()`: classifies a Gmod node into a display category (root, leaf, product type, function composition, group, selection)
+- `qvistools::core::vis::SearchIndex`: case-insensitive substring search over a Gmod's nodes (code, name, common name, definition), backed by a trigram index, reporting each match's parent and any skipped product-selection parent
 
 #### GUI
 

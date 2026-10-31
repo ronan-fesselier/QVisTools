@@ -5,6 +5,7 @@
 add_library(qvistools-core STATIC
     vis/gmod/GmodNodeChildren.cpp
     vis/gmod/NodeCategory.cpp
+    vis/gmod/SearchIndex.cpp
 )
 add_library(qvistools::core ALIAS qvistools-core)
 
