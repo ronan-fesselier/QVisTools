@@ -1,3 +1,4 @@
+#include "app/gui/detail/QStringUtils.h"
 #include "app/gui/MainWindow/MainWindow.h"
 
 #include "qvistools/Version.h"
@@ -15,7 +16,7 @@ int main(int argc, char* argv[])
 {
     QApplication app{ argc, argv };
     QApplication::setApplicationName(QStringLiteral("QVisTools"));
-    QApplication::setApplicationVersion(QString::fromUtf8(qvistools::version()));
+    QApplication::setApplicationVersion(detail::toQString(qvistools::version()));
 
     try
     {
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
         QMessageBox::critical(
             nullptr,
             QCoreApplication::translate("QVisTools", "Startup error"),
-            QString::fromUtf8(e.what() != nullptr ? e.what() : "Unknown error"));
+            detail::toQString(e.what() != nullptr ? e.what() : "Unknown error"));
 
         return 1;
     }

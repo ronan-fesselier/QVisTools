@@ -25,7 +25,11 @@
 
 #### GUI
 
-- `MainWindow`: main window with status bar (showing the Gmod VIS version), File menu and Help menu (About dialog listing application, Qt and `dnv-vista-sdk` versions)
+- `MainWindow`: main window with status bar (showing the Gmod VIS version and node count), File menu and Help menu (About dialog listing application, Qt and `dnv-vista-sdk` versions)
+
+- `GmodTreeModel`: `QAbstractItemModel` exposing the Gmod tree, with sorted/substituted children caching
+
+- `GmodExplorer`: tree view over the Gmod, with a VIS version selector and a collapse-all action
 
 ### Changed
 
