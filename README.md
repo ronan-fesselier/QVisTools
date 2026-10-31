@@ -33,3 +33,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Third-party dependencies licenses
 
 - **[Qt6](https://www.qt.io)**: Widgets module (GNU Lesser General Public License v3) - linked dynamically
+- **[Icons8](https://icons8.com)**: Icons used throughout the application

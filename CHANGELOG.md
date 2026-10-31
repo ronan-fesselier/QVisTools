@@ -4,6 +4,8 @@
 
 ### Added
 
+- About dialog with version information
+
 #### Dependencies
 
 - Qt6 (Widgets)
