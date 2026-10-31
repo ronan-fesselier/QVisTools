@@ -21,9 +21,11 @@ add_executable(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME}
     PROPERTIES
         DEBUG_POSTFIX "${QVIS_TOOLS_DEBUG_POSTFIX}"
+        AUTOMOC ON
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
+        Qt6::Widgets
         qvistools::warnings
 )
