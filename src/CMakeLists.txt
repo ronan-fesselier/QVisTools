@@ -2,4 +2,5 @@
 # QVisTools - src
 #==============================================================================
 
+add_subdirectory(viscore)
 add_subdirectory(app)

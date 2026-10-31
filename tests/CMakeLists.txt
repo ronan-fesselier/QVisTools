@@ -32,3 +32,5 @@ else()
 endif()
 
 include(doctest)
+
+add_subdirectory(viscore)
