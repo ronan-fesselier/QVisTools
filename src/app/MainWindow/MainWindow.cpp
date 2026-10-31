@@ -1,5 +1,8 @@
 #include "MainWindow.h"
 
+#include <dnv/vista/sdk/core/Gmod.h>
+#include <dnv/vista/sdk/Version.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QDialog>
@@ -8,17 +11,19 @@
 #include <QStatusBar>
 #include <QVBoxLayout>
 
+#include <string>
+
 namespace qvistools
 {
-    MainWindow::MainWindow(QWidget* parent)
+    MainWindow::MainWindow(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
         : QMainWindow{ parent }
     {
-        setupStatusBar();
+        setupStatusBar(gmod);
         setupFileMenu();
         setupHelpMenu();
     }
 
-    void MainWindow::setupStatusBar()
+    void MainWindow::setupStatusBar(const dnv::vista::sdk::Gmod& gmod)
     {
         statusBar()->showMessage(tr("Ready"));
 
@@ -28,6 +33,11 @@ namespace qvistools
                 statusBar()->showMessage(tr("Ready"));
             }
         });
+
+        const std::string version{ dnv::vista::sdk::VisVersions::toString(gmod.version()) };
+
+        auto* versionLabel{ new QLabel{ tr("Gmod %1").arg(QString::fromStdString(version)) } };
+        statusBar()->addPermanentWidget(versionLabel);
     }
 
     void MainWindow::setupFileMenu()
@@ -60,14 +70,21 @@ namespace qvistools
             auto* infoLabel{ new QLabel{ &dialog } };
             infoLabel->setTextFormat(Qt::RichText);
             infoLabel->setOpenExternalLinks(true);
-            infoLabel->setText(tr("<table cellspacing=\"6\" cellpadding=\"2\">"
-                                  "<tr><td align=\"right\">Version:</td><td><b>%1</b></td><td>&nbsp;(MIT)</td></tr>"
-                                  "<tr><td align=\"right\"><a href=\"https://www.qt.io\">Qt</a>:</td><td><b>%2</b></td>"
-                                  "<td>&nbsp;(LGPLv3)</td></tr>"
-                                  "<tr><td align=\"right\">Icons:</td><td colspan=\"2\"><a "
-                                  "href=\"https://icons8.com\">Icons8</a></td></tr>"
-                                  "</table>")
-                                   .arg(QApplication::applicationVersion(), QString::fromUtf8(qVersion())));
+            infoLabel->setText(
+                tr("<table cellspacing=\"6\" cellpadding=\"2\">"
+                   "<tr><td align=\"right\">Version:</td><td><b>%1</b></td><td>&nbsp;(MIT)</td></tr>"
+                   "<tr><td align=\"right\"><a "
+                   "href=\"https://github.com/ronan-fesselier/vista-sdk/tree/feature/cpp/cpp\">DNV Vista "
+                   "SDK</a>:</td><td><b>%2</b></td><td>&nbsp;(MIT)</td></tr>"
+                   "<tr><td align=\"right\"><a href=\"https://www.qt.io\">Qt</a>:</td><td><b>%3</b></td>"
+                   "<td>&nbsp;(LGPLv3)</td></tr>"
+                   "<tr><td align=\"right\">Icons:</td><td colspan=\"2\"><a "
+                   "href=\"https://icons8.com\">Icons8</a></td></tr>"
+                   "</table>")
+                    .arg(
+                        QApplication::applicationVersion(),
+                        QString::fromUtf8(dnv::vista::sdk::version()),
+                        QString::fromUtf8(qVersion())));
 
             auto* layout{ new QVBoxLayout{ &dialog } };
             layout->addWidget(titleLabel);
