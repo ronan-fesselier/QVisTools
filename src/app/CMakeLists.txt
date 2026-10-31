@@ -25,5 +25,6 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Qt6::Widgets
         dnv::vista::sdk
+        qvistools::core
         qvistools::warnings
 )

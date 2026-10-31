@@ -22,3 +22,5 @@ endblock()
 list(APPEND CMAKE_MODULE_PATH "${doctest_SOURCE_DIR}/scripts/cmake")
 
 include(doctest)
+
+add_subdirectory(core)

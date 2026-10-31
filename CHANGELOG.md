@@ -19,6 +19,10 @@
 
 - `VIS` singleton initialization at startup, with Gmod resolved for the latest VIS version
 
+- `qvistools::core::utils::naturalCompare()`: natural-order string comparison (numeric runs compared by value, not lexicographically), locale-independent and byte-order-correct (unsigned char comparison)
+
+- `qvistools::core::vis::sortedChildren()`: display-ready Gmod node children, with transparent product type/selection substitution and natural code ordering
+
 #### GUI
 
 - `MainWindow`: main window with status bar (showing the Gmod VIS version), File menu and Help menu (About dialog listing application, Qt and `dnv-vista-sdk` versions)
