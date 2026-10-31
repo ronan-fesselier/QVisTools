@@ -1,6 +1,7 @@
 #include "GmodTreeView.h"
 
 #include "detail/StringUtils.h"
+#include "GmodTreeItemDelegate.h"
 #include "GmodTreeModel.h"
 
 #include <dnv/vista/sdk/core/VIS.h>
@@ -39,6 +40,7 @@ namespace qvistools::gui
         m_treeView->setModel(m_model);
         m_treeView->setHeaderHidden(true);
         m_treeView->installEventFilter(this);
+        m_treeView->setItemDelegate(new GmodTreeItemDelegate{ m_treeView });
     }
 
     void GmodTreeView::setupVersionCombo(const dnv::vista::sdk::Gmod& gmod)
