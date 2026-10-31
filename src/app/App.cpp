@@ -3,7 +3,12 @@
 #include "gui/MainWindow/MainWindow.h"
 #include "qvistools/Version.h"
 
+#include <dnv/vista/sdk/core/VIS.h>
+
 #include <QApplication>
+#include <QMessageBox>
+
+#include <exception>
 
 namespace qvistools
 {
@@ -13,12 +18,24 @@ namespace qvistools
         QApplication::setApplicationName(QStringLiteral("QVisTools"));
         QApplication::setApplicationVersion(QString::fromUtf8(version()));
 
-        gui::MainWindow window;
-        window.setWindowTitle("QVisTools");
-        window.setMinimumSize(800, 600);
+        try
+        {
+            const auto& vis{ dnv::vista::sdk::VIS::instance() };
+            const auto& gmod{ vis.gmod(vis.latest()) };
 
-        window.show();
+            gui::MainWindow window{ gmod };
+            window.setWindowTitle("QVisTools");
+            window.setMinimumSize(800, 600);
 
-        return app.exec();
+            window.show();
+
+            return app.exec();
+        }
+        catch (const std::exception& e)
+        {
+            QMessageBox::critical(nullptr, QObject::tr("Startup error"), QString::fromUtf8(e.what()));
+
+            return 1;
+        }
     }
 } // namespace qvistools

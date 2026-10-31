@@ -6,6 +6,8 @@
 
 - `Qt6 Widgets` dependency
 
+- `VIS` singleton initialized at startup
+
 - `qvistools::version()`: runtime-queryable project version, generated from `CMakeLists.txt`'s `project(VERSION ...)`
 
 - `App`: application entry point wrapping `QApplication` lifecycle
