@@ -1,6 +1,7 @@
 #include "GmodSearchBar.h"
 
-#include "app/detail/QStringUtils.h"
+#include "app/SdkQtTypes.h"
+#include "GmodSearchResultDelegate.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 
@@ -27,6 +28,7 @@ namespace qvistools
     {
         m_lineEdit->setPlaceholderText(tr("Search Gmod nodes..."));
         m_resultsList->setHidden(true);
+        m_resultsList->setItemDelegate(new GmodSearchResultDelegate{ m_resultsList });
 
         m_debounceTimer->setSingleShot(true);
         m_debounceTimer->setInterval(SEARCH_DEBOUNCE_MS);
@@ -116,17 +118,10 @@ namespace qvistools
 
         for (const auto& match : matches)
         {
-            const auto* node{ match.node };
-
-            auto label{ detail::toQString(node->code()) + QStringLiteral(" - ") +
-                        detail::toQString(node->metadata().name()) };
-
-            if (match.parent != nullptr)
-            {
-                label.prepend(detail::toQString(match.parent->code()) + QStringLiteral(" > "));
-            }
-
-            m_resultsList->addItem(new QListWidgetItem{ label });
+            auto* item{ new QListWidgetItem };
+            item->setData(GmodSearchResultDelegate::NodeRole, QVariant::fromValue(match.node));
+            item->setData(GmodSearchResultDelegate::ParentRole, QVariant::fromValue(match.parent));
+            m_resultsList->addItem(item);
         }
 
         if (truncated)
