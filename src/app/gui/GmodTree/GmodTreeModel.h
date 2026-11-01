@@ -1,6 +1,7 @@
 #pragma once
 
 #include "app/gui/SdkQtTypes.h"
+#include "core/vis/gmod/SearchIndex.h"
 
 #include <QAbstractItemModel>
 #include <QHash>
@@ -36,6 +37,17 @@ namespace qvistools::gui
         virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+        /**
+         * @brief Resolve the model index displaying a search match's node
+         * @details Walks from the match's displayed parent (skippedParent if the match
+         *          was reached through a product selection, otherwise parent) up to the
+         *          root via the first-parent heuristic (same one sortedChildren/
+         *          cachedSortedChildren already use to flatten the Gmod DAG into this
+         *          tree), then descends that path one level at a time, so the cost is
+         *          proportional to the path depth, not to the size of the tree
+         */
+        [[nodiscard]] QModelIndex indexForMatch(const core::vis::SearchIndex::Match& match) const;
 
     private:
         struct NodeHandle

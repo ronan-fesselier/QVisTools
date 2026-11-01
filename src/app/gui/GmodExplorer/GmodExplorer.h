@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/vis/gmod/SearchIndex.h"
+
 #include <QGroupBox>
 #include <QModelIndex>
 
@@ -36,6 +38,7 @@ namespace qvistools::gui
 
         void onVersionChanged(int index);
         void onRootCollapsed(const QModelIndex& index);
+        void onSearchMatchActivated(const core::vis::SearchIndex::Match& match);
 
         const dnv::vista::sdk::Gmod* m_gmod;
 

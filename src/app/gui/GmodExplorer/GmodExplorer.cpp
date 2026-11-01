@@ -81,6 +81,8 @@ namespace qvistools::gui
             m_versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &GmodExplorer::onVersionChanged);
 
         QObject::connect(m_treeView, &QTreeView::collapsed, this, &GmodExplorer::onRootCollapsed);
+
+        QObject::connect(m_searchBar, &GmodSearchBar::matchActivated, this, &GmodExplorer::onSearchMatchActivated);
     }
 
     void GmodExplorer::expandRoot()
@@ -126,6 +128,23 @@ namespace qvistools::gui
         {
             m_treeView->setExpanded(index, true);
         }
+    }
+
+    void GmodExplorer::onSearchMatchActivated(const core::vis::SearchIndex::Match& match)
+    {
+        const auto targetIndex{ m_model->indexForMatch(match) };
+        if (!targetIndex.isValid())
+        {
+            return;
+        }
+
+        for (auto parentIndex{ targetIndex.parent() }; parentIndex.isValid(); parentIndex = parentIndex.parent())
+        {
+            m_treeView->expand(parentIndex);
+        }
+
+        m_treeView->setCurrentIndex(targetIndex);
+        m_treeView->scrollTo(targetIndex, QAbstractItemView::PositionAtCenter);
     }
 
     bool GmodExplorer::eventFilter(QObject* watched, QEvent* event)
