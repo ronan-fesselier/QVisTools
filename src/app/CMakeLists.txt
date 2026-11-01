@@ -9,9 +9,12 @@ add_executable(${PROJECT_NAME}
     main.cpp
 
     GmodExplorer/GmodExplorer.cpp
+    GmodExplorer/GmodTreeItemDelegate.cpp
     GmodExplorer/GmodTreeModel.cpp
 
     MainWindow/MainWindow.cpp
+
+    shared/GmodChipRenderer.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

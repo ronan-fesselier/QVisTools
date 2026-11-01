@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
+        <file alias="link.png">icons8-link-80.png</file>
         <file alias="ship.png">icons8-ship-96.png</file>
     </qresource>
 </RCC>
