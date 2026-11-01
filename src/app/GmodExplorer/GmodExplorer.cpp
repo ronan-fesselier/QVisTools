@@ -1,9 +1,12 @@
 #include "GmodExplorer.h"
 
 #include "app/detail/QStringUtils.h"
+#include "app/shared/GmodChipRenderer.h"
 #include "GmodSearchBar.h"
 #include "GmodTreeItemDelegate.h"
 #include "GmodTreeModel.h"
+
+#include <viscore/gmod/NodeCategory.h>
 
 #include <dnv/vista/sdk/core/VIS.h>
 
@@ -12,11 +15,61 @@
 #include <QEvent>
 #include <QKeyEvent>
 #include <QPushButton>
+#include <QStringList>
+#include <QStyle>
+#include <QToolButton>
 #include <QTreeView>
 #include <QVBoxLayout>
 
+#include <array>
+
 namespace qvistools
 {
+    namespace
+    {
+        QString legendHtml()
+        {
+            static constexpr std::array<viscore::gmod::NodeCategory, 10> categories{
+                viscore::gmod::NodeCategory::Root,
+                viscore::gmod::NodeCategory::AssetFunctionGroup,
+                viscore::gmod::NodeCategory::ProductFunctionGroup,
+                viscore::gmod::NodeCategory::AssetFunctionLeaf,
+                viscore::gmod::NodeCategory::OtherLeaf,
+                viscore::gmod::NodeCategory::FunctionComposition,
+                viscore::gmod::NodeCategory::FunctionSelection,
+                viscore::gmod::NodeCategory::ProductSelection,
+                viscore::gmod::NodeCategory::ProductType,
+                viscore::gmod::NodeCategory::Other
+            };
+
+            QString html{ QStringLiteral("<table cellpadding='2' cellspacing='0'>") };
+
+            for (std::size_t i{ 0 }; i < categories.size();)
+            {
+                const auto color{ categoryColor(categories[i]) };
+
+                QStringList names{ detail::toQString(viscore::gmod::categoryName(categories[i])) };
+                std::size_t j{ i + 1 };
+                while (j < categories.size() && categoryColor(categories[j]) == color)
+                {
+                    names << detail::toQString(viscore::gmod::categoryName(categories[j]));
+                    ++j;
+                }
+
+                html += QStringLiteral(
+                            "<tr>"
+                            "<td><span style='background:%1'>&nbsp;&nbsp;&nbsp;</span></td>"
+                            "<td>&nbsp;%2</td>"
+                            "</tr>")
+                            .arg(color.name(), names.join(QStringLiteral(" / ")));
+
+                i = j;
+            }
+
+            return html + QStringLiteral("</table>");
+        }
+    } // namespace
+
     GmodExplorer::GmodExplorer(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
         : QGroupBox{ tr("Generic Product Model - VIS"), parent },
           m_gmod{ &gmod },
@@ -24,11 +77,17 @@ namespace qvistools
           m_treeView{ new QTreeView{ this } },
           m_collapseAllButton{ new QPushButton{ this } },
           m_versionCombo{ new QComboBox{ this } },
-          m_searchBar{ new GmodSearchBar{ gmod, this } }
+          m_searchBar{ new GmodSearchBar{ gmod, this } },
+          m_legendButton{ new QToolButton{ this } }
     {
         m_collapseAllButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_TitleBarShadeButton));
         m_collapseAllButton->setToolTip(tr("Collapse all"));
         m_collapseAllButton->setFixedWidth(m_collapseAllButton->sizeHint().width());
+
+        m_legendButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation));
+        m_legendButton->setAutoRaise(true);
+        m_legendButton->setFocusPolicy(Qt::NoFocus);
+        m_legendButton->setToolTip(legendHtml());
 
         setupTreeView();
         setupVersionCombo(gmod);
@@ -71,6 +130,7 @@ namespace qvistools
         hLayout->addWidget(m_searchBar);
         hLayout->addWidget(m_collapseAllButton, 0, Qt::AlignTop);
         hLayout->addWidget(m_versionCombo, 0, Qt::AlignTop);
+        hLayout->addWidget(m_legendButton, 0, Qt::AlignTop);
 
         auto* layout{ new QVBoxLayout{ this } };
         layout->addLayout(hLayout);
