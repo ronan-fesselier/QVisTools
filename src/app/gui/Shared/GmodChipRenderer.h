@@ -47,6 +47,7 @@ namespace qvistools::gui
     {
         QString text;
         QColor color;
+        core::vis::NodeCategory category;
         ChipIcon icon{ ChipIcon::None };
     };
 
@@ -74,4 +75,12 @@ namespace qvistools::gui
         const QStyleOptionViewItem& initializedOption,
         const QString& name,
         const std::vector<ChipSegment>& segments);
+
+    /**
+     * @brief Find which chip segment, if any, contains a given point
+     * @details Used by delegates' helpEvent() to show a per-category tooltip under the
+     *          cursor. point and topLeft must be in the same coordinate space
+     */
+    [[nodiscard]] std::optional<std::size_t> hitTest(
+        const QFontMetrics& metrics, QPoint topLeft, const std::vector<ChipSegment>& segments, QPoint point);
 } // namespace qvistools::gui

@@ -38,12 +38,12 @@
 
 - `GmodTreeModel`: `QAbstractItemModel` exposing the Gmod tree, with sorted/substituted children caching, and `ProductNodeRole`/`SkippedParentNodeRole` exposing substitution context to the view
 - `GmodTreeModel::indexForMatch()`: resolves the model index displaying a `SearchIndex::Match`'s node, at a cost proportional to the path depth
-- `GmodTreeItemDelegate`: renders Gmod nodes as category-colored chips (with skipped-parent and product-type/selection context) followed by the node's display name
+- `GmodTreeItemDelegate`: renders Gmod nodes as category-colored chips (with skipped-parent and product-type/selection context) followed by the node's display name, showing the hovered chip's category name as a tooltip
 
 - `GmodExplorer`: tree view over the Gmod, with a VIS version selector, a collapse-all action and a search bar, navigating to and selecting an activated search match in the tree
-- `GmodChipRenderer`: maps a node category to a display color and picks a readable (black/white) text color for it
+- `GmodChipRenderer`: maps a node category to a display color, picks a readable (black/white) text color for it, paints a chip-row (selection/background, chip group, elided name) shared by `GmodTreeItemDelegate`/`GmodSearchResultDelegate`, and hit-tests a point against chip segments for tooltips
 - `GmodSearchBar`: text search over the Gmod backed by `core::vis::SearchIndex`, showing matches in an inline results list
-- `GmodSearchResultDelegate`: renders search results as a leaf-only ancestor chip path followed by the matched node's display name
+- `GmodSearchResultDelegate`: renders search results as a leaf-only ancestor chip path followed by the matched node's display name, showing the hovered chip's category name as a tooltip
 
 ### Changed
 

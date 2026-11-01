@@ -185,4 +185,26 @@ namespace qvistools::gui
 
         painter->restore();
     }
+
+    std::optional<std::size_t> hitTest(
+        const QFontMetrics& metrics, QPoint topLeft, const std::vector<ChipSegment>& segments, QPoint point)
+    {
+        if (point.y() < topLeft.y() || point.y() >= topLeft.y() + CHIP_HEIGHT)
+        {
+            return std::nullopt;
+        }
+
+        int x{ topLeft.x() };
+        for (std::size_t i{ 0 }; i < segments.size(); ++i)
+        {
+            const int width{ segmentWidth(metrics, segments[i]) };
+            if (point.x() >= x && point.x() < x + width)
+            {
+                return i;
+            }
+            x += width;
+        }
+
+        return std::nullopt;
+    }
 } // namespace qvistools::gui

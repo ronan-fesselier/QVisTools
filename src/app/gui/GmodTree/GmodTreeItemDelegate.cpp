@@ -9,7 +9,10 @@
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 
+#include <QAbstractItemView>
+#include <QHelpEvent>
 #include <QPainter>
+#include <QToolTip>
 
 #include <algorithm>
 #include <string_view>
@@ -49,6 +52,27 @@ namespace qvistools::gui
         return size;
     }
 
+    bool GmodTreeItemDelegate::helpEvent(
+        QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index)
+    {
+        const auto segments{ buildSegments(index) };
+        if (segments.empty())
+        {
+            return QStyledItemDelegate::helpEvent(event, view, option, index);
+        }
+
+        const QFontMetrics metrics{ option.font };
+        const auto hit{ hitTest(metrics, chipTopLeft(option.rect), segments, event->pos()) };
+        if (!hit.has_value())
+        {
+            return QStyledItemDelegate::helpEvent(event, view, option, index);
+        }
+
+        QToolTip::showText(
+            event->globalPos(), detail::toQString(core::vis::categoryName(segments[*hit].category)), view);
+        return true;
+    }
+
     std::vector<ChipSegment> GmodTreeItemDelegate::buildSegments(const QModelIndex& index)
     {
         const auto* node{ index.data(GmodTreeModel::NodeRole).value<const dnv::vista::sdk::GmodNode*>() };
@@ -70,21 +94,28 @@ namespace qvistools::gui
             const auto category{ core::vis::categoryOf(*skippedParentNode) };
             segments.push_back({ detail::toQString(skippedParentNode->code()),
                                  categoryColor(category),
+                                 category,
                                  linkIcon(skippedParentNode->isMappable()) });
         }
         {
             const auto category{ core::vis::categoryOf(*node) };
             segments.push_back(
-                { detail::toQString(node->code()), categoryColor(category), linkIcon(node->isMappable()) });
+                { detail::toQString(node->code()), categoryColor(category), category, linkIcon(node->isMappable()) });
         }
         if (productNode != nullptr)
         {
             const auto category{ core::vis::categoryOf(*productNode) };
             segments.push_back({ detail::toQString(productNode->code()),
                                  categoryColor(category),
+                                 category,
                                  linkIcon(productNode->isMappable()) });
         }
 
         return segments;
+    }
+
+    QPoint GmodTreeItemDelegate::chipTopLeft(const QRect& rect)
+    {
+        return QPoint{ rect.left(), rect.top() + (rect.height() - CHIP_HEIGHT) / 2 };
     }
 } // namespace qvistools::gui
