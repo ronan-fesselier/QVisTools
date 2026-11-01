@@ -36,8 +36,13 @@ namespace
             }
             haystack = viscore::utils::toLower(haystack);
 
+            const auto haystackWords{ viscore::utils::splitWords(haystack) };
+
             const bool hasAllWords{ std::all_of(requiredWords.begin(), requiredWords.end(), [&](const auto& word) {
-                return haystack.find(word) != std::string::npos;
+                const auto stemmedWord{ viscore::utils::stemSimple(word) };
+                return std::any_of(haystackWords.begin(), haystackWords.end(), [&](const auto& haystackWord) {
+                    return viscore::utils::stemSimple(haystackWord) == stemmedWord;
+                });
             }) };
 
             if (hasAllWords)
@@ -168,6 +173,32 @@ TEST_SUITE("SearchIndex")
         }) };
 
         REQUIRE(it != matches.end());
+    }
+
+    TEST_CASE("search matches a singular field through a plural search term via stemming")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto* node{ findFirstNodeWithWords(gmod, { "pump" }) };
+        REQUIRE(node != nullptr);
+
+        const viscore::gmod::SearchIndex index{ gmod };
+
+        CHECK(containsNode(index.search("pumps"), node));
+    }
+
+    TEST_CASE("search requires every stemmed word of a multi-word term to match")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto* node{ findFirstNodeWithWords(gmod, { "cooling", "pump" }) };
+        REQUIRE(node != nullptr);
+
+        const viscore::gmod::SearchIndex index{ gmod };
+
+        CHECK(containsNode(index.search("cooling pump"), node));
     }
 
     TEST_CASE("search does not match a multi-word term when only some words are present")

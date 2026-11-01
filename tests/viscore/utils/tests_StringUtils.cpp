@@ -35,6 +35,72 @@ TEST_SUITE("StringUtils")
         CHECK_FALSE(viscore::utils::containsCaseInsensitive("ab", "abc"));
     }
 
+    TEST_CASE("stemSimple strips a single trailing 's'")
+    {
+        CHECK(viscore::utils::stemSimple("pumps") == "pump");
+        CHECK(viscore::utils::stemSimple("valves") == "valve");
+    }
+
+    TEST_CASE("stemSimple leaves words without a trailing 's' untouched")
+    {
+        CHECK(viscore::utils::stemSimple("pump") == "pump");
+    }
+
+    TEST_CASE("stemSimple does not strip the only character of a single-letter word")
+    {
+        CHECK(viscore::utils::stemSimple("s") == "s");
+    }
+
+    TEST_CASE("stemSimple leaves short words ending in a single 's' untouched")
+    {
+        CHECK(viscore::utils::stemSimple("as") == "as");
+        CHECK(viscore::utils::stemSimple("gas") == "gas");
+        CHECK(viscore::utils::stemSimple("bus") == "bus");
+    }
+
+    TEST_CASE("stemSimple leaves words ending in a double 's' untouched")
+    {
+        CHECK(viscore::utils::stemSimple("class") == "class");
+        CHECK(viscore::utils::stemSimple("process") == "process");
+    }
+
+    TEST_CASE("splitWords splits on whitespace")
+    {
+        const auto words{ viscore::utils::splitWords("reciprocating internal combustion engine") };
+
+        REQUIRE(words.size() == 4);
+        CHECK(words[0] == "reciprocating");
+        CHECK(words[1] == "internal");
+        CHECK(words[2] == "combustion");
+        CHECK(words[3] == "engine");
+    }
+
+    TEST_CASE("splitWords splits on punctuation, including parentheses and hyphens")
+    {
+        const auto words{ viscore::utils::splitWords("pump(s) - reciprocating, internal.") };
+
+        REQUIRE(words.size() == 4);
+        CHECK(words[0] == "pump");
+        CHECK(words[1] == "s");
+        CHECK(words[2] == "reciprocating");
+        CHECK(words[3] == "internal");
+    }
+
+    TEST_CASE("splitWords ignores leading, trailing and repeated separators")
+    {
+        const auto words{ viscore::utils::splitWords("  pump   valve  ") };
+
+        REQUIRE(words.size() == 2);
+        CHECK(words[0] == "pump");
+        CHECK(words[1] == "valve");
+    }
+
+    TEST_CASE("splitWords returns an empty vector for a string with no words")
+    {
+        CHECK(viscore::utils::splitWords("   -- ,, ").empty());
+        CHECK(viscore::utils::splitWords("").empty());
+    }
+
     TEST_CASE("naturalCompare orders numeric runs by value, not lexicographically")
     {
         CHECK(viscore::utils::naturalCompare("a2", "a10") == std::strong_ordering::less);

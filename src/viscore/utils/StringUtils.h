@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace viscore::utils
 {
@@ -58,9 +59,51 @@ namespace viscore::utils
         return false;
     }
 
+    inline std::string_view stemSimple(std::string_view word)
+    {
+        if (word.size() > 3 && word.back() == 's' && word[word.size() - 2] != 's')
+        {
+            return word.substr(0, word.size() - 1);
+        }
+
+        return word;
+    }
+
     inline bool isAsciiDigit(unsigned char c)
     {
         return c >= '0' && c <= '9';
+    }
+
+    inline bool isAsciiAlnum(unsigned char c)
+    {
+        return isAsciiDigit(c) || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+    }
+
+    inline std::vector<std::string> splitWords(std::string_view text)
+    {
+        std::vector<std::string> words;
+
+        std::size_t i{ 0 };
+        while (i < text.size())
+        {
+            while (i < text.size() && !isAsciiAlnum(static_cast<unsigned char>(text[i])))
+            {
+                ++i;
+            }
+
+            const std::size_t start{ i };
+            while (i < text.size() && isAsciiAlnum(static_cast<unsigned char>(text[i])))
+            {
+                ++i;
+            }
+
+            if (i > start)
+            {
+                words.emplace_back(text.substr(start, i - start));
+            }
+        }
+
+        return words;
     }
 
     inline std::strong_ordering naturalCompare(std::string_view a, std::string_view b)

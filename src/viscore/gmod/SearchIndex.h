@@ -31,10 +31,11 @@ namespace viscore::gmod
         struct Entry
         {
             const dnv::vista::sdk::GmodNode* node;
-            std::string code;
-            std::string name;
-            std::string commonName;
-            std::string definition;
+            std::string_view code;
+            std::string_view name;
+            std::string_view commonName;
+            std::string_view definition;
+            std::vector<std::string> stemmedWords;
         };
 
         [[nodiscard]] bool entryMatches(const Entry& entry, std::string_view termLower) const;
@@ -43,5 +44,6 @@ namespace viscore::gmod
 
         std::vector<Entry> m_entries;
         std::unordered_map<std::string, std::vector<std::size_t>> m_trigramIndex;
+        std::unordered_map<std::string, std::vector<std::size_t>> m_stemIndex;
     };
 } // namespace viscore::gmod
