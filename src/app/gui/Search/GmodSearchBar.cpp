@@ -1,5 +1,6 @@
 #include "GmodSearchBar.h"
 
+#include "app/gui/detail/QStringUtils.h"
 #include "app/gui/SdkQtTypes.h"
 #include "GmodSearchResultDelegate.h"
 
@@ -121,6 +122,17 @@ namespace qvistools::gui
             auto* item{ new QListWidgetItem };
             item->setData(GmodSearchResultDelegate::NodeRole, QVariant::fromValue(match.node));
             item->setData(GmodSearchResultDelegate::ParentRole, QVariant::fromValue(match.parent));
+
+            const auto& metadata{ match.node->metadata() };
+            if (metadata.commonDefinition().has_value())
+            {
+                item->setData(Qt::ToolTipRole, detail::toQString(*metadata.commonDefinition()));
+            }
+            else if (metadata.definition().has_value())
+            {
+                item->setData(Qt::ToolTipRole, detail::toQString(*metadata.definition()));
+            }
+
             m_resultsList->addItem(item);
         }
 
