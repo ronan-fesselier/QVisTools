@@ -4,6 +4,37 @@
 
 TEST_SUITE("StringUtils")
 {
+    TEST_CASE("asciiEqualCaseInsensitive matches letters regardless of case")
+    {
+        CHECK(viscore::utils::asciiEqualCaseInsensitive('a', 'A'));
+        CHECK(viscore::utils::asciiEqualCaseInsensitive('Z', 'z'));
+        CHECK_FALSE(viscore::utils::asciiEqualCaseInsensitive('a', 'b'));
+    }
+
+    TEST_CASE("asciiEqualCaseInsensitive leaves non-letter bytes unaffected by case folding")
+    {
+        CHECK(viscore::utils::asciiEqualCaseInsensitive('5', '5'));
+        CHECK_FALSE(viscore::utils::asciiEqualCaseInsensitive('5', '6'));
+    }
+
+    TEST_CASE("containsCaseInsensitive matches a substring regardless of case")
+    {
+        CHECK(viscore::utils::containsCaseInsensitive("Reciprocating Pump", "pump"));
+        CHECK(viscore::utils::containsCaseInsensitive("Reciprocating Pump", "RECIPROCATING"));
+        CHECK_FALSE(viscore::utils::containsCaseInsensitive("Reciprocating Pump", "valve"));
+    }
+
+    TEST_CASE("containsCaseInsensitive treats an empty needle as always matching")
+    {
+        CHECK(viscore::utils::containsCaseInsensitive("anything", ""));
+        CHECK(viscore::utils::containsCaseInsensitive("", ""));
+    }
+
+    TEST_CASE("containsCaseInsensitive does not match a needle longer than the haystack")
+    {
+        CHECK_FALSE(viscore::utils::containsCaseInsensitive("ab", "abc"));
+    }
+
     TEST_CASE("naturalCompare orders numeric runs by value, not lexicographically")
     {
         CHECK(viscore::utils::naturalCompare("a2", "a10") == std::strong_ordering::less);

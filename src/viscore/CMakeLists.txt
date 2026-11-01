@@ -5,6 +5,7 @@
 add_library(viscore STATIC
     gmod/GmodNodeResolution.cpp
     gmod/NodeCategory.cpp
+    gmod/SearchIndex.cpp
 )
 
 set_target_properties(viscore

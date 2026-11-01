@@ -1,12 +1,63 @@
 #pragma once
 
+#include <algorithm>
 #include <cctype>
 #include <compare>
 #include <cstddef>
+#include <string>
 #include <string_view>
 
 namespace viscore::utils
 {
+    inline std::string toLower(std::string_view s)
+    {
+        std::string result{ s };
+        std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
+            return static_cast<char>(std::tolower(c));
+        });
+        return result;
+    }
+
+    inline bool asciiEqualCaseInsensitive(unsigned char a, unsigned char b)
+    {
+        const auto lower{ [](unsigned char c) {
+            return (c >= 'A' && c <= 'Z') ? static_cast<unsigned char>(c + ('a' - 'A')) : c;
+        } };
+        return lower(a) == lower(b);
+    }
+
+    inline bool containsCaseInsensitive(std::string_view haystack, std::string_view needle)
+    {
+        if (needle.empty())
+        {
+            return true;
+        }
+        if (needle.size() > haystack.size())
+        {
+            return false;
+        }
+
+        for (std::size_t i{ 0 }; i + needle.size() <= haystack.size(); ++i)
+        {
+            bool allMatch{ true };
+            for (std::size_t j{ 0 }; j < needle.size(); ++j)
+            {
+                if (!asciiEqualCaseInsensitive(
+                        static_cast<unsigned char>(haystack[i + j]), static_cast<unsigned char>(needle[j])))
+                {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     inline bool isAsciiDigit(unsigned char c)
     {
         return c >= '0' && c <= '9';
