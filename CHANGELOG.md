@@ -25,6 +25,8 @@
 - `qvistools::core::utils::stemSimple()`: strips a trailing plural 's' from a lowercase word
 - `qvistools::core::utils::splitWords()`: splits a string into alphanumeric words
 
+- `qvistools::core::vis::ancestorPath()`: resolves the Gmod root-to-node path via the first-parent heuristic
+- `qvistools::core::vis::shortAncestorPath()`: same, keeping only leaf nodes - used to render a node's displayed chip path
 - `qvistools::core::vis::effectiveNode()`: resolves the node whose children should be displayed in place of a node's own (transparent product type/selection substitution)
 - `qvistools::core::vis::sortedChildren()`: display-ready Gmod node children, with transparent product type/selection substitution and natural code ordering
 - `qvistools::core::vis::categoryOf()`: classifies a Gmod node into a display category (root, leaf, product type, function composition, group, selection)
