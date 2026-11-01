@@ -1,5 +1,7 @@
 #pragma once
 
+#include <viscore/gmod/SearchIndex.h>
+
 #include <QGroupBox>
 #include <QModelIndex>
 
@@ -15,6 +17,7 @@ namespace dnv::vista::sdk
 
 namespace qvistools
 {
+    class GmodSearchBar;
     class GmodTreeModel;
 
     class GmodExplorer final : public QGroupBox
@@ -35,6 +38,7 @@ namespace qvistools
 
         void onVersionChanged(int index);
         void onRootCollapsed(const QModelIndex& index);
+        void onSearchMatchActivated(const viscore::gmod::SearchIndex::Match& match);
 
         const dnv::vista::sdk::Gmod* m_gmod;
 
@@ -42,6 +46,7 @@ namespace qvistools
         QTreeView* m_treeView;
         QPushButton* m_collapseAllButton;
         QComboBox* m_versionCombo;
+        GmodSearchBar* m_searchBar;
 
     protected:
         virtual bool eventFilter(QObject* watched, QEvent* event) override;

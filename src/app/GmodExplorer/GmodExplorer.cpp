@@ -1,6 +1,7 @@
 #include "GmodExplorer.h"
 
 #include "app/detail/QStringUtils.h"
+#include "GmodSearchBar.h"
 #include "GmodTreeItemDelegate.h"
 #include "GmodTreeModel.h"
 
@@ -22,7 +23,8 @@ namespace qvistools
           m_model{ new GmodTreeModel{ *m_gmod, this } },
           m_treeView{ new QTreeView{ this } },
           m_collapseAllButton{ new QPushButton{ this } },
-          m_versionCombo{ new QComboBox{ this } }
+          m_versionCombo{ new QComboBox{ this } },
+          m_searchBar{ new GmodSearchBar{ gmod, this } }
     {
         m_collapseAllButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_TitleBarShadeButton));
         m_collapseAllButton->setToolTip(tr("Collapse all"));
@@ -66,9 +68,9 @@ namespace qvistools
     void GmodExplorer::setupLayout()
     {
         auto* hLayout{ new QHBoxLayout };
-        hLayout->addWidget(m_collapseAllButton);
-        hLayout->addWidget(m_versionCombo);
-        hLayout->addStretch();
+        hLayout->addWidget(m_searchBar);
+        hLayout->addWidget(m_collapseAllButton, 0, Qt::AlignTop);
+        hLayout->addWidget(m_versionCombo, 0, Qt::AlignTop);
 
         auto* layout{ new QVBoxLayout{ this } };
         layout->addLayout(hLayout);
@@ -83,6 +85,8 @@ namespace qvistools
             m_versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &GmodExplorer::onVersionChanged);
 
         QObject::connect(m_treeView, &QTreeView::collapsed, this, &GmodExplorer::onRootCollapsed);
+
+        QObject::connect(m_searchBar, &GmodSearchBar::matchActivated, this, &GmodExplorer::onSearchMatchActivated);
     }
 
     void GmodExplorer::expandRoot()
@@ -117,6 +121,8 @@ namespace qvistools
 
         expandRoot();
 
+        m_searchBar->setGmod(*m_gmod);
+
         emit gmodChanged(*m_gmod);
     }
 
@@ -126,6 +132,23 @@ namespace qvistools
         {
             m_treeView->setExpanded(index, true);
         }
+    }
+
+    void GmodExplorer::onSearchMatchActivated(const viscore::gmod::SearchIndex::Match& match)
+    {
+        const auto targetIndex{ m_model->indexForMatch(match) };
+        if (!targetIndex.isValid())
+        {
+            return;
+        }
+
+        for (auto parentIndex{ targetIndex.parent() }; parentIndex.isValid(); parentIndex = parentIndex.parent())
+        {
+            m_treeView->expand(parentIndex);
+        }
+
+        m_treeView->setCurrentIndex(targetIndex);
+        m_treeView->scrollTo(targetIndex, QAbstractItemView::PositionAtCenter);
     }
 
     bool GmodExplorer::eventFilter(QObject* watched, QEvent* event)

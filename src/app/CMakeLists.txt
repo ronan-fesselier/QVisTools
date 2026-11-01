@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}
     main.cpp
 
     GmodExplorer/GmodExplorer.cpp
+    GmodExplorer/GmodSearchBar.cpp
     GmodExplorer/GmodTreeItemDelegate.cpp
     GmodExplorer/GmodTreeModel.cpp
 

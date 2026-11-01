@@ -9,6 +9,7 @@
 - Gmod tree explorer, with a VIS version selector to switch between available Gmod versions
 - Gmod tree nodes sorted in natural order (e.g. `400a` before `411a`)
 - Gmod tree nodes rendered as color-coded chips by category, with a link icon on mappable nodes and the underlying product type/selection node shown when a node substitutes one
+- Gmod search bar, matching nodes by code, name, or definition, with results jumping straight to the node in the tree
 
 #### Dependencies
 

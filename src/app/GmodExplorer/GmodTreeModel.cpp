@@ -7,6 +7,8 @@
 #include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/core/GmodNode.h>
 
+#include <algorithm>
+
 namespace qvistools
 {
     GmodTreeModel::GmodTreeModel(const dnv::vista::sdk::Gmod& gmod, QObject* parent)
@@ -119,6 +121,85 @@ namespace qvistools
             default:
                 return {};
         }
+    }
+
+    QModelIndex GmodTreeModel::indexForMatch(const viscore::gmod::SearchIndex::Match& match) const
+    {
+        if (match.node == nullptr)
+        {
+            return {};
+        }
+
+        const auto* entryNode{ match.parent };
+
+        if (entryNode == nullptr)
+        {
+            // The match is the root itself: no displayed parent to walk down from
+            return match.node == m_rootNode ? index(0, 0, {}) : QModelIndex{};
+        }
+
+        std::vector<const dnv::vista::sdk::GmodNode*> path{ entryNode };
+        while (path.back() != m_rootNode)
+        {
+            const auto* current{ path.back() };
+
+            const dnv::vista::sdk::GmodNode* displayedParent{ nullptr };
+            for (const auto* candidate : current->parents())
+            {
+                const auto* resolved{ viscore::gmod::effectiveNode(*candidate) };
+                if (resolved == candidate || resolved == current)
+                {
+                    displayedParent = candidate;
+                    break;
+                }
+            }
+
+            if (displayedParent == nullptr)
+            {
+                return {};
+            }
+            path.push_back(displayedParent);
+        }
+        std::reverse(path.begin(), path.end());
+
+        QModelIndex current{ index(0, 0, {}) };
+        for (std::size_t i{ 1 }; i < path.size(); ++i)
+        {
+            const auto* parentNode{ path[i - 1] };
+            const auto* childNode{ path[i] };
+
+            if (viscore::gmod::effectiveNode(*parentNode) == childNode)
+            {
+                continue;
+            }
+
+            const auto& children{ cachedSortedChildren(*parentNode) };
+            const auto it{ std::find(children.begin(), children.end(), childNode) };
+            if (it == children.end())
+            {
+                return {};
+            }
+
+            current = index(static_cast<int>(it - children.begin()), 0, current);
+            if (!current.isValid())
+            {
+                return {};
+            }
+        }
+
+        if (viscore::gmod::effectiveNode(*entryNode) == match.node)
+        {
+            return current;
+        }
+
+        const auto& entryChildren{ cachedSortedChildren(*entryNode) };
+        const auto nodeIt{ std::find(entryChildren.begin(), entryChildren.end(), match.node) };
+        if (nodeIt == entryChildren.end())
+        {
+            return {};
+        }
+
+        return index(static_cast<int>(nodeIt - entryChildren.begin()), 0, current);
     }
 
     GmodTreeModel::NodeHandle* GmodTreeModel::handleFor(
