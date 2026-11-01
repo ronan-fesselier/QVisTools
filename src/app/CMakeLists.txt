@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
 
     gui/LocalId/GmodPathItemSlot.cpp
     gui/LocalId/LocalIdBuilderWidget.cpp
+    gui/LocalId/MetadataTagRow.cpp
 
     gui/MainWindow/MainWindow.cpp
 

@@ -1,9 +1,11 @@
 #pragma once
 
+#include <dnv/vista/sdk/core/CodebookName.h>
 #include <dnv/vista/sdk/core/VisVersions.h>
 
 #include <QGroupBox>
 
+#include <array>
 #include <optional>
 
 class QLabel;
@@ -17,6 +19,7 @@ namespace dnv::vista::sdk
 namespace qvistools::gui
 {
     class GmodPathItemSlot;
+    class MetadataTagRow;
 
     /**
      * @brief The Local ID builder panel: the path bar ("/dnv-v2/vis-<version>/+Primary/
@@ -49,10 +52,16 @@ namespace qvistools::gui
     private:
         void setupLayout();
         void setupConnections();
+        void rebuildMetadataRows();
+
+        dnv::vista::sdk::VisVersion m_version;
 
         QLabel* m_versionLabel;
         GmodPathItemSlot* m_primaryItemSlot;
         GmodPathItemSlot* m_secondaryItemSlot;
+
+        std::array<MetadataTagRow*, 8> m_metadataRows;
+        int m_metadataColumn{ 0 };
 
     signals:
         void primaryItemUnmapRequested();

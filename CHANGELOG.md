@@ -50,7 +50,8 @@
 - `GmodSearchBar`: text search over the Gmod backed by `core::vis::SearchIndex`, showing matches (with a tooltip of the matched node's common/plain definition) in an inline results list
 - `GmodSearchResultDelegate`: renders search results as a leaf-only ancestor chip path followed by the matched node's display name, showing the hovered chip's category name as a tooltip
 - `GmodPathItemSlot`: clickable slot for the Local ID path bar's primary/secondary item, showing a dashed "+Primary"/"+Secondary" placeholder when empty or the selected `GmodPath`'s short path as one category-colored chip per leaf segment when filled, with keyboard activation and hover/press feedback via `QAbstractButton`
-- `LocalIdBuilderWidget`: the Local ID path bar ("/IMO/dnv-v2/vis-<version>/+Primary/sec/+Secondary/meta"), with an IMO number field, a VIS version label updatable without resetting the rest of the bar, and primary/secondary `GmodPathItemSlot`s requesting item selection from their owner on click
+- `LocalIdBuilderWidget`: the Local ID path bar ("/IMO/dnv-v2/vis-<version>/+Primary/sec/+Secondary/meta"), with an IMO number field, a VIS version label updatable without resetting the rest of the bar, primary/secondary `GmodPathItemSlot`s requesting item selection from their owner on click, and one `MetadataTagRow` per `DISPLAYED_CODEBOOKS` entry, rebuilt when the VIS version changes
+- `MetadataTagRow`: one metadata tag row ("/<prefix> - [value]"), as a free-text field or an editable combo with autocomplete over the codebook's standard values when any exist
 
 ### Changed
 
