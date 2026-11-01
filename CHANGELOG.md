@@ -10,6 +10,7 @@
 - Gmod tree nodes sorted in natural order (e.g. `400a` before `411a`)
 - Gmod tree nodes rendered as color-coded chips by category, with a link icon on mappable nodes and the underlying product type/selection node shown when a node substitutes one
 - Gmod search bar, matching nodes by code, name, or definition (including plural/singular word forms), with results shown as ancestor chip paths and jumping straight to the node in the tree
+- Tooltips on chip hover (category name) and on tree/search rows (node definition)
 
 #### Dependencies
 

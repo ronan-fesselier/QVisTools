@@ -35,6 +35,7 @@ namespace qvistools
     {
         QString text;
         QColor color;
+        viscore::gmod::NodeCategory category;
         ChipIcon icon{ ChipIcon::None };
     };
 
@@ -45,4 +46,7 @@ namespace qvistools
         const QStyleOptionViewItem& initializedOption,
         const QString& name,
         const std::vector<ChipSegment>& segments);
+
+    [[nodiscard]] std::optional<std::size_t> hitTest(
+        const QFontMetrics& metrics, QPoint topLeft, const std::vector<ChipSegment>& segments, QPoint point);
 } // namespace qvistools

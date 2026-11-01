@@ -101,6 +101,19 @@ namespace qvistools
 
                 return QStringLiteral("%1 - %2").arg(detail::toQString(node->code()), detail::toQString(name));
             }
+            case Qt::ToolTipRole:
+            {
+                const auto& metadata{ node->metadata() };
+                if (metadata.commonDefinition().has_value())
+                {
+                    return detail::toQString(*metadata.commonDefinition());
+                }
+                if (metadata.definition().has_value())
+                {
+                    return detail::toQString(*metadata.definition());
+                }
+                return {};
+            }
             case NodeRole:
                 return QVariant::fromValue(node);
             case ProductNodeRole:
