@@ -17,6 +17,8 @@
 - `GmodTreeView`: navigable Gmod tree panel
 - `GmodTreeModel`: lazy `QAbstractItemModel` over the Gmod DAG, naturally sorted, duplicate-safe expand/collapse state for nodes with multiple parents
 - `GmodTreeItemDelegate`: custom `QStyledItemDelegate` rendering node code, product and skipped-parent chips with category/type-based colors
+- `GmodSearchIndex`: Qt-agnostic search index over the Gmod DAG, matching on code/name/commonName/definition
+- `GmodSearchBar`: search box and results list above the tree view
 
 ### Changed
 

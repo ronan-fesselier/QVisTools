@@ -1,9 +1,11 @@
 #include "GmodTreeView.h"
 
 #include "detail/StringUtils.h"
+#include "GmodSearchBar.h"
 #include "GmodTreeItemDelegate.h"
 #include "GmodTreeModel.h"
 
+#include <dnv/vista/sdk/core/GmodNode.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
 #include <QComboBox>
@@ -22,7 +24,8 @@ namespace qvistools::gui
           m_model{ new GmodTreeModel{ *m_gmod, this } },
           m_treeView{ new QTreeView{ this } },
           m_collapseAllButton{ new QPushButton{ QIcon{ ":/icons/collapse-all.svg" }, QString{}, this } },
-          m_versionCombo{ new QComboBox{ this } }
+          m_versionCombo{ new QComboBox{ this } },
+          m_searchBar{ new GmodSearchBar{ gmod, this } }
     {
         m_collapseAllButton->setToolTip(tr("Collapse all"));
 
@@ -58,8 +61,9 @@ namespace qvistools::gui
     void GmodTreeView::setupLayout()
     {
         auto* hLayout{ new QHBoxLayout };
-        hLayout->addWidget(m_collapseAllButton);
-        hLayout->addWidget(m_versionCombo);
+        hLayout->addWidget(m_searchBar);
+        hLayout->addWidget(m_collapseAllButton, 0, Qt::AlignTop);
+        hLayout->addWidget(m_versionCombo, 0, Qt::AlignTop);
 
         auto* layout{ new QVBoxLayout{ this } };
         layout->addLayout(hLayout);
@@ -122,6 +126,8 @@ namespace qvistools::gui
         m_model = newModel;
 
         expandRoot();
+
+        m_searchBar->setGmod(*m_gmod);
 
         emit gmodChanged(*m_gmod);
     }

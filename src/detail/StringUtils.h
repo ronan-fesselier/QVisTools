@@ -2,6 +2,7 @@
 
 #include <QString>
 
+#include <algorithm>
 #include <cctype>
 #include <optional>
 #include <string>
@@ -9,6 +10,15 @@
 
 namespace qvistools::detail
 {
+    inline std::string toLower(std::string_view s)
+    {
+        std::string result{ s };
+        std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
+            return static_cast<char>(std::tolower(c));
+        });
+        return result;
+    }
+
     inline QString toQString(std::string_view s)
     {
         return QString::fromUtf8(s.data(), static_cast<int>(s.size()));
