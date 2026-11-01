@@ -3,6 +3,8 @@
 #==============================================================================
 
 add_library(qvistools-core STATIC
+    vis/localid/LocalId.cpp
+
     vis/gmod/AncestorPath.cpp
     vis/gmod/GmodNodeChildren.cpp
     vis/gmod/NodeCategory.cpp

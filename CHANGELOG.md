@@ -32,6 +32,8 @@
 - `qvistools::core::vis::categoryOf()`: classifies a Gmod node into a display category (root, leaf, product type, function composition, group, selection)
 - `qvistools::core::vis::SearchIndex`: case-insensitive search over a Gmod's nodes (code, name, common name, definition), combining a trigram-accelerated substring match with a multi-word stemmed match (every word of the search term must match a whole stemmed word, so "cooling pump" matches an entry containing "cooling" and "pump"/"pumps" in any order), reporting each match's displayed parent
 
+- `qvistools::core::vis::buildLocalId()`: builds a LocalId string from a primary item, an optional secondary item and a set of metadata tags, collecting every invalid tag before failing rather than stopping at the first one
+
 #### GUI
 
 - `MainWindow`: main window with status bar (showing the Gmod VIS version and node count), File menu and Help menu (About dialog listing application, Qt and `dnv-vista-sdk` versions)
