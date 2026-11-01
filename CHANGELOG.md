@@ -49,7 +49,8 @@
 - `GmodChipRenderer`: maps a node category to a display color, picks a readable (black/white) text color for it, paints a chip-row (selection/background, chip group, elided name) shared by `GmodTreeItemDelegate`/`GmodSearchResultDelegate`, and hit-tests a point against chip segments for tooltips
 - `GmodSearchBar`: text search over the Gmod backed by `core::vis::SearchIndex`, showing matches (with a tooltip of the matched node's common/plain definition) in an inline results list
 - `GmodSearchResultDelegate`: renders search results as a leaf-only ancestor chip path followed by the matched node's display name, showing the hovered chip's category name as a tooltip
-- `GmodPathItemSlot`: clickable slot for the Local ID path bar's primary/secondary item, showing a dashed "+Primary"/"+Secondary" placeholder when empty or a category-colored chip when filled, with keyboard activation and hover/press feedback via `QAbstractButton`
+- `GmodPathItemSlot`: clickable slot for the Local ID path bar's primary/secondary item, showing a dashed "+Primary"/"+Secondary" placeholder when empty or the selected `GmodPath`'s short path as one category-colored chip per leaf segment when filled, with keyboard activation and hover/press feedback via `QAbstractButton`
+- `LocalIdBuilderWidget`: the Local ID path bar ("/IMO/dnv-v2/vis-<version>/+Primary/sec/+Secondary/meta"), with an IMO number field, a VIS version label updatable without resetting the rest of the bar, and primary/secondary `GmodPathItemSlot`s requesting item selection from their owner on click
 
 ### Changed
 

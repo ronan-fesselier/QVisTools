@@ -12,6 +12,7 @@ add_executable(${PROJECT_NAME}
     gui/GmodTree/GmodTreeModel.cpp
 
     gui/LocalId/GmodPathItemSlot.cpp
+    gui/LocalId/LocalIdBuilderWidget.cpp
 
     gui/MainWindow/MainWindow.cpp
 
