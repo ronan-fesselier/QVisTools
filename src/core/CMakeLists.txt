@@ -3,6 +3,8 @@
 #==============================================================================
 
 add_library(qvistools-core STATIC
+    vis/codebooks/CodebookValues.cpp
+
     vis/localid/LocalId.cpp
 
     vis/gmod/AncestorPath.cpp

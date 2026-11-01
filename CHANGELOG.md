@@ -34,6 +34,8 @@
 
 - `qvistools::core::vis::buildLocalId()`: builds a LocalId string from a primary item, an optional secondary item and a set of metadata tags, collecting every invalid tag before failing rather than stopping at the first one
 - `qvistools::core::vis::applyLocationToSet()`: applies a `Location` to one of a `GmodPath`'s individualizable sets, returning the resulting path
+- `qvistools::core::vis::DISPLAYED_CODEBOOKS`: the 8 codebooks shown to the user (Quantity, Content, Calculation, State, Command, Type, Position, Detail), in `vis/codebooks/CodebookValues.h`
+- `qvistools::core::vis::standardValuesOf()`: sorted standard (non-custom) values for a codebook, backing a metadata field's autocomplete
 
 #### GUI
 
