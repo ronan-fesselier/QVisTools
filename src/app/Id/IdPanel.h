@@ -13,6 +13,7 @@ namespace dnv::vista::sdk
 
 namespace qvistools
 {
+    class IdErrorsWidget;
     class LocalIdBuilderWidget;
 
     class IdPanel final : public QGroupBox
@@ -31,6 +32,7 @@ namespace qvistools
         void setupConnections();
 
         LocalIdBuilderWidget* m_builder;
+        IdErrorsWidget* m_errors;
 
     signals:
         void primaryItemUnmapRequested();

@@ -6,13 +6,27 @@
 
 #include <viscore/codebooks/CodebookValues.h>
 #include <viscore/gmod/NodeCategory.h>
+#include <viscore/id/LocalId.h>
 
+#include <dnv/vista/sdk/core/Codebooks.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
-#include <QFontMetrics>
+#include <QApplication>
+#include <QCheckBox>
+#include <QClipboard>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPalette>
+#include <QPushButton>
+#include <QStringList>
+#include <QVBoxLayout>
+
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 namespace qvistools
 {
@@ -93,7 +107,10 @@ namespace qvistools
           m_versionLabel{ makeSeparatorLabel(versionLabelText(version), this) },
           m_primaryItemSlot{ new GmodPathItemSlot{ tr("Primary"), this } },
           m_secondaryItemSlot{ new GmodPathItemSlot{ tr("Secondary"), this } },
-          m_metadataRows{}
+          m_metadataRows{},
+          m_verboseCheckBox{ new QCheckBox{ tr("Verbose"), this } },
+          m_localIdValue{ new QLineEdit{ this } },
+          m_copyButton{ new QPushButton{ tr("Copy"), this } }
     {
         setupLayout();
         setupConnections();
@@ -102,12 +119,16 @@ namespace qvistools
 
     void LocalIdBuilderWidget::setPrimaryItem(const std::optional<dnv::vista::sdk::GmodPath>& path)
     {
+        m_primaryPath = path;
         fillSlot(*m_primaryItemSlot, path);
+        rebuildLocalId();
     }
 
     void LocalIdBuilderWidget::setSecondaryItem(const std::optional<dnv::vista::sdk::GmodPath>& path)
     {
+        m_secondaryPath = path;
         fillSlot(*m_secondaryItemSlot, path);
+        rebuildLocalId();
     }
 
     void LocalIdBuilderWidget::setVisVersion(dnv::vista::sdk::VisVersion version)
@@ -115,6 +136,8 @@ namespace qvistools
         m_version = version;
         m_versionLabel->setText(versionLabelText(version));
 
+        m_primaryPath.reset();
+        m_secondaryPath.reset();
         m_primaryItemSlot->clear();
         m_secondaryItemSlot->clear();
 
@@ -136,6 +159,21 @@ namespace qvistools
 
         grid->setColumnStretch(m_metadataColumn, 1);
         grid->setRowStretch(static_cast<int>(viscore::codebooks::DISPLAYED_CODEBOOKS.size()), 1);
+
+        const auto resultRow{ static_cast<int>(viscore::codebooks::DISPLAYED_CODEBOOKS.size()) };
+
+        m_localIdValue->setReadOnly(true);
+
+        auto* localIdLabel{ new QLabel{ tr("Local ID"), this } };
+
+        auto* localIdLayout{ new QHBoxLayout };
+        localIdLayout->addWidget(localIdLabel);
+        localIdLayout->addWidget(m_localIdValue, 1);
+        localIdLayout->addWidget(m_verboseCheckBox);
+        localIdLayout->addWidget(m_copyButton);
+        grid->addLayout(localIdLayout, resultRow, 0, 1, m_metadataColumn + 1);
+
+        grid->setRowStretch(resultRow + 1, 1);
     }
 
     void LocalIdBuilderWidget::setupConnections()
@@ -150,6 +188,11 @@ namespace qvistools
             &GmodPathItemSlot::unmapRequested,
             this,
             &LocalIdBuilderWidget::secondaryItemUnmapRequested);
+
+        QObject::connect(m_verboseCheckBox, &QCheckBox::toggled, this, &LocalIdBuilderWidget::rebuildLocalId);
+
+        QObject::connect(
+            m_copyButton, &QPushButton::clicked, this, [this]() { QApplication::clipboard()->setText(m_localIdText); });
     }
 
     void LocalIdBuilderWidget::rebuildMetadataRows()
@@ -196,6 +239,52 @@ namespace qvistools
 
             m_metadataRows[i] = row;
             grid->addWidget(row, static_cast<int>(i), m_metadataColumn);
+            QObject::connect(row, &MetadataTagRow::valueChanged, this, [this](auto, auto) { rebuildLocalId(); });
         }
+
+        rebuildLocalId();
+    }
+
+    void LocalIdBuilderWidget::rebuildLocalId()
+    {
+        m_localIdText.clear();
+        m_copyButton->setEnabled(false);
+
+        std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>> tags;
+        for (const auto* row : m_metadataRows)
+        {
+            if (row == nullptr)
+            {
+                continue;
+            }
+
+            const auto text{ row->value().trimmed().toStdString() };
+            if (!text.empty())
+            {
+                tags.emplace_back(row->codebookName(), text);
+            }
+        }
+
+        const auto result{ viscore::id::buildLocalId(
+            m_version, m_primaryPath, m_secondaryPath, tags, m_verboseCheckBox->isChecked()) };
+
+        if (!result.localId.has_value())
+        {
+            m_localIdValue->setText(tr("(invalid)"));
+
+            QStringList lines;
+            for (const auto& error : result.errors)
+            {
+                lines << detail::toQString(error.message);
+            }
+            emit errorsChanged(lines);
+            return;
+        }
+
+        m_localIdText = detail::toQString(*result.localId);
+        m_localIdValue->setText(m_localIdText);
+        m_copyButton->setEnabled(true);
+
+        emit errorsChanged({});
     }
 } // namespace qvistools

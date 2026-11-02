@@ -12,7 +12,7 @@
 - Gmod search bar, matching nodes by code, name, or definition (including plural/singular word forms), with results shown as ancestor chip paths and jumping straight to the node in the tree
 - Tooltips on chip hover (category name) and on tree/search rows (node definition)
 - Legend button showing the category/color mapping used by the chips
-- Local ID builder, with primary/secondary item slots and metadata tag rows (standard values) for the displayed codebooks
+- Local ID builder, with primary/secondary item slots and metadata tag rows (standard values) for the displayed codebooks. The Local ID is built live as fields change, with a verbose mode, a copy button, and build errors shown in a dedicated panel
 - Mapping a Gmod tree node to the Local ID builder's primary/secondary slot from its context menu
 
 #### Dependencies

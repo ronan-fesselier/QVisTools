@@ -1,18 +1,19 @@
 #pragma once
 
+#include <dnv/vista/sdk/core/CodebookName.h>
+#include <dnv/vista/sdk/core/GmodPath.h>
 #include <dnv/vista/sdk/core/VisVersions.h>
 
 #include <QGroupBox>
+#include <QStringList>
 
 #include <array>
 #include <optional>
 
+class QCheckBox;
 class QLabel;
-
-namespace dnv::vista::sdk
-{
-    class GmodPath;
-} // namespace dnv::vista::sdk
+class QLineEdit;
+class QPushButton;
 
 namespace qvistools
 {
@@ -34,8 +35,11 @@ namespace qvistools
         void setupLayout();
         void setupConnections();
         void rebuildMetadataRows();
+        void rebuildLocalId();
 
         dnv::vista::sdk::VisVersion m_version;
+        std::optional<dnv::vista::sdk::GmodPath> m_primaryPath;
+        std::optional<dnv::vista::sdk::GmodPath> m_secondaryPath;
 
         QLabel* m_versionLabel;
         GmodPathItemSlot* m_primaryItemSlot;
@@ -44,8 +48,14 @@ namespace qvistools
         std::array<MetadataTagRow*, 8> m_metadataRows;
         int m_metadataColumn{ 0 };
 
+        QCheckBox* m_verboseCheckBox;
+        QLineEdit* m_localIdValue;
+        QPushButton* m_copyButton;
+        QString m_localIdText;
+
     signals:
         void primaryItemUnmapRequested();
         void secondaryItemUnmapRequested();
+        void errorsChanged(const QStringList& errors);
     };
 } // namespace qvistools

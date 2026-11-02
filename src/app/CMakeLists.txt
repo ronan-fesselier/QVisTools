@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
     GmodExplorer/GmodTreeModel.cpp
 
     Id/GmodPathItemSlot.cpp
+    Id/IdErrorsWidget.cpp
     Id/IdPanel.cpp
     Id/LocalIdBuilderWidget.cpp
     Id/MetadataTagRow.cpp
