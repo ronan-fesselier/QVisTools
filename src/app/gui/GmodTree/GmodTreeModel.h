@@ -7,6 +7,7 @@
 #include <QHash>
 
 #include <memory>
+#include <optional>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -14,6 +15,7 @@
 namespace dnv::vista::sdk
 {
     class Gmod;
+    class GmodPath;
 } // namespace dnv::vista::sdk
 
 namespace qvistools::gui
@@ -48,6 +50,12 @@ namespace qvistools::gui
          *          proportional to the path depth, not to the size of the tree
          */
         [[nodiscard]] QModelIndex indexForMatch(const core::vis::SearchIndex::Match& match) const;
+
+        /**
+         * @brief Build the GmodPath actually displayed by this index, by walking up
+         *        parent() to the root and collecting each level's real GmodNode
+         */
+        [[nodiscard]] std::optional<dnv::vista::sdk::GmodPath> pathForIndex(const QModelIndex& index) const;
 
     private:
         struct NodeHandle

@@ -8,12 +8,18 @@
 #include "app/gui/Search/GmodSearchBar.h"
 #include "app/gui/Shared/GmodChipRenderer.h"
 
+#include <dnv/vista/sdk/core/GmodNode.h>
+#include <dnv/vista/sdk/core/GmodPath.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QComboBox>
 #include <QEvent>
+#include <QFontMetrics>
 #include <QKeyEvent>
+#include <QMenu>
+#include <QMouseEvent>
 #include <QPushButton>
 #include <QStringList>
 #include <QStyle>
@@ -104,6 +110,7 @@ namespace qvistools::gui
         m_treeView->setItemDelegate(new GmodTreeItemDelegate{ m_treeView });
         m_treeView->setHeaderHidden(true);
         m_treeView->installEventFilter(this);
+        m_treeView->viewport()->installEventFilter(this);
     }
 
     void GmodExplorer::setupVersionCombo(const dnv::vista::sdk::Gmod& gmod)
@@ -207,6 +214,53 @@ namespace qvistools::gui
         m_treeView->scrollTo(targetIndex, QAbstractItemView::PositionAtCenter);
     }
 
+    bool GmodExplorer::onTreeViewMousePress(QMouseEvent* event)
+    {
+        if (event->button() != Qt::LeftButton)
+        {
+            return false;
+        }
+
+        const auto index{ m_treeView->indexAt(event->pos()) };
+        if (!index.isValid())
+        {
+            return false;
+        }
+
+        const auto segments{ GmodTreeItemDelegate::buildSegments(index) };
+        if (segments.empty())
+        {
+            return false;
+        }
+
+        const auto rowRect{ m_treeView->visualRect(index) };
+        const QFontMetrics metrics{ m_treeView->font() };
+        const auto hit{ hitTest(metrics, GmodTreeItemDelegate::chipTopLeft(rowRect), segments, event->pos()) };
+        if (!hit.has_value() || segments[*hit].icon != ChipIcon::Link)
+        {
+            return false;
+        }
+
+        const auto path{ m_model->pathForIndex(index) };
+        if (!path.has_value())
+        {
+            return false;
+        }
+
+        auto* menu{ new QMenu{ m_treeView } };
+        auto* primaryAction{ menu->addAction(tr("Map to Primary")) };
+        auto* secondaryAction{ menu->addAction(tr("Map to Secondary")) };
+
+        QObject::connect(
+            primaryAction, &QAction::triggered, this, [this, path]() { emit nodeMapped(*path, MapTarget::Primary); });
+        QObject::connect(secondaryAction, &QAction::triggered, this, [this, path]() {
+            emit nodeMapped(*path, MapTarget::Secondary);
+        });
+
+        menu->popup(event->globalPosition().toPoint());
+        return true;
+    }
+
     bool GmodExplorer::eventFilter(QObject* watched, QEvent* event)
     {
         if (watched == m_treeView && event->type() == QEvent::KeyPress)
@@ -216,6 +270,14 @@ namespace qvistools::gui
             if (keyEvent->key() == Qt::Key_Asterisk)
             {
                 // Block QTreeView's default expand-all shortcut: the Gmod DAG is too large to expand fully.
+                return true;
+            }
+        }
+
+        if (watched == m_treeView->viewport() && event->type() == QEvent::MouseButtonPress)
+        {
+            if (onTreeViewMousePress(static_cast<QMouseEvent*>(event)))
+            {
                 return true;
             }
         }

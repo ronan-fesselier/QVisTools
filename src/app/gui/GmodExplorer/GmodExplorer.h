@@ -5,8 +5,11 @@
 #include <QGroupBox>
 #include <QModelIndex>
 
+#include <optional>
+
 class QComboBox;
 class QEvent;
+class QMouseEvent;
 class QPushButton;
 class QToolButton;
 class QTreeView;
@@ -14,6 +17,7 @@ class QTreeView;
 namespace dnv::vista::sdk
 {
     class Gmod;
+    class GmodPath;
 } // namespace dnv::vista::sdk
 
 namespace qvistools::gui
@@ -26,6 +30,16 @@ namespace qvistools::gui
         Q_OBJECT
 
     public:
+        /**
+         * @brief Which Local ID slot a mapped node should fill
+         */
+        enum class MapTarget
+        {
+            Primary,
+            Secondary
+        };
+        Q_ENUM(MapTarget)
+
         explicit GmodExplorer(const dnv::vista::sdk::Gmod& gmod, QWidget* parent = nullptr);
 
     private:
@@ -40,6 +54,7 @@ namespace qvistools::gui
         void onVersionChanged(int index);
         void onRootCollapsed(const QModelIndex& index);
         void onSearchMatchActivated(const core::vis::SearchIndex::Match& match);
+        bool onTreeViewMousePress(QMouseEvent* event);
 
         const dnv::vista::sdk::Gmod* m_gmod;
 
@@ -55,5 +70,6 @@ namespace qvistools::gui
 
     signals:
         void gmodChanged(const dnv::vista::sdk::Gmod& gmod);
+        void nodeMapped(const dnv::vista::sdk::GmodPath& path, qvistools::gui::GmodExplorer::MapTarget target);
     };
 } // namespace qvistools::gui

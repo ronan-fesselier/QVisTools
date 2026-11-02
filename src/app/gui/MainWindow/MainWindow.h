@@ -23,6 +23,7 @@ namespace qvistools::gui
         void setupStatusBar(const dnv::vista::sdk::Gmod& gmod);
         void setupFileMenu();
         void setupHelpMenu();
+        void setupLocalIdConnections();
 
         LocalIdBuilderWidget* m_localIdBuilder;
         GmodExplorer* m_explorer;
