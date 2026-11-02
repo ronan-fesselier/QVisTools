@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dnv/vista/sdk/core/CodebookName.h>
+#include <dnv/vista/sdk/core/GmodPath.h>
 #include <dnv/vista/sdk/core/VisVersions.h>
 
 #include <QGroupBox>
@@ -8,13 +9,10 @@
 #include <array>
 #include <optional>
 
+class QCheckBox;
 class QLabel;
 class QLineEdit;
-
-namespace dnv::vista::sdk
-{
-    class GmodPath;
-} // namespace dnv::vista::sdk
+class QPushButton;
 
 namespace qvistools::gui
 {
@@ -48,13 +46,15 @@ namespace qvistools::gui
          */
         void setVisVersion(dnv::vista::sdk::VisVersion version);
 
-
     private:
         void setupLayout();
         void setupConnections();
         void rebuildMetadataRows();
+        void rebuildLocalId();
 
         dnv::vista::sdk::VisVersion m_version;
+        std::optional<dnv::vista::sdk::GmodPath> m_primaryPath;
+        std::optional<dnv::vista::sdk::GmodPath> m_secondaryPath;
 
         QLabel* m_versionLabel;
         GmodPathItemSlot* m_primaryItemSlot;
@@ -63,8 +63,15 @@ namespace qvistools::gui
         std::array<MetadataTagRow*, 8> m_metadataRows;
         int m_metadataColumn{ 0 };
 
+        QCheckBox* m_verboseCheckBox;
+        QLineEdit* m_localIdValue;
+        QPushButton* m_copyButton;
+        QLabel* m_errorsValue;
+        QString m_localIdText;
+
     signals:
         void primaryItemUnmapRequested();
         void secondaryItemUnmapRequested();
+        void localIdChanged(const QString& localIdText);
     };
 } // namespace qvistools::gui
