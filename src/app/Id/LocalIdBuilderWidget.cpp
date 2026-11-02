@@ -36,8 +36,14 @@ namespace qvistools
             if (!path.has_value())
             {
                 slot.clear();
+                slot.setToolTip({});
                 return;
             }
+
+            const auto& metadata{ path->node().metadata() };
+            const auto name{ metadata.commonName().has_value() ? std::string_view(*metadata.commonName())
+                                                               : metadata.name() };
+            slot.setToolTip(detail::toQString(name));
 
             const std::string shortPath{ path->toString() };
 

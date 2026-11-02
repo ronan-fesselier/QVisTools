@@ -5,6 +5,7 @@
 #include "app/Id/IdPanel.h"
 
 #include <dnv/vista/sdk/core/Gmod.h>
+#include <dnv/vista/sdk/core/GmodPath.h>
 #include <dnv/vista/sdk/Version.h>
 
 #include <QAction>
@@ -23,16 +24,17 @@ namespace qvistools
 {
     MainWindow::MainWindow(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
         : QMainWindow{ parent },
-          m_IdPanel{ new IdPanel{ gmod.version(), this } },
+          m_idPanel{ new IdPanel{ gmod.version(), this } },
           m_explorer{ new GmodExplorer{ gmod, this } }
     {
         setupStatusBar(gmod);
         setupFileMenu();
         setupHelpMenu();
+        setupLocalIdConnections();
 
         auto* splitter{ new QSplitter{ Qt::Horizontal, this } };
         splitter->setChildrenCollapsible(false);
-        splitter->addWidget(m_IdPanel);
+        splitter->addWidget(m_idPanel);
         splitter->addWidget(m_explorer);
 
         auto* centralWidget{ new QWidget{ this } };
@@ -120,6 +122,36 @@ namespace qvistools
             dialog.move(window()->frameGeometry().center() - dialog.rect().center());
 
             dialog.exec();
+        });
+    }
+
+    void MainWindow::setupLocalIdConnections()
+    {
+        QObject::connect(
+            m_explorer,
+            &GmodExplorer::nodeMapped,
+            this,
+            [this](const dnv::vista::sdk::GmodPath& path, GmodExplorer::MapTarget target) {
+                switch (target)
+                {
+                    case GmodExplorer::MapTarget::Primary:
+                        m_idPanel->setPrimaryItem(path);
+                        break;
+                    case GmodExplorer::MapTarget::Secondary:
+                        m_idPanel->setSecondaryItem(path);
+                        break;
+                }
+            });
+
+        QObject::connect(m_explorer, &GmodExplorer::gmodChanged, this, [this](const dnv::vista::sdk::Gmod& g) {
+            m_idPanel->setVisVersion(g.version());
+        });
+
+        QObject::connect(m_idPanel, &IdPanel::primaryItemUnmapRequested, this, [this]() {
+            m_idPanel->setPrimaryItem(std::nullopt);
+        });
+        QObject::connect(m_idPanel, &IdPanel::secondaryItemUnmapRequested, this, [this]() {
+            m_idPanel->setSecondaryItem(std::nullopt);
         });
     }
 } // namespace qvistools

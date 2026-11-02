@@ -28,6 +28,7 @@ namespace qvistools
 
     private:
         void setupLayout();
+        void setupConnections();
 
         LocalIdBuilderWidget* m_builder;
 

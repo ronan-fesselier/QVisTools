@@ -11,6 +11,7 @@ namespace qvistools
           m_builder{ new LocalIdBuilderWidget{ version, this } }
     {
         setupLayout();
+        setupConnections();
     }
 
     void IdPanel::setPrimaryItem(const std::optional<dnv::vista::sdk::GmodPath>& path)
@@ -33,5 +34,13 @@ namespace qvistools
         auto* layout{ new QVBoxLayout{ this } };
         layout->addWidget(m_builder);
         layout->addStretch(1);
+    }
+
+    void IdPanel::setupConnections()
+    {
+        QObject::connect(
+            m_builder, &LocalIdBuilderWidget::primaryItemUnmapRequested, this, &IdPanel::primaryItemUnmapRequested);
+        QObject::connect(
+            m_builder, &LocalIdBuilderWidget::secondaryItemUnmapRequested, this, &IdPanel::secondaryItemUnmapRequested);
     }
 } // namespace qvistools

@@ -23,8 +23,9 @@ namespace qvistools
         void setupStatusBar(const dnv::vista::sdk::Gmod& gmod);
         void setupFileMenu();
         void setupHelpMenu();
+        void setupLocalIdConnections();
 
-        IdPanel* m_IdPanel;
+        IdPanel* m_idPanel;
         GmodExplorer* m_explorer;
     };
 } // namespace qvistools

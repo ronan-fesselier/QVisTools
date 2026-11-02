@@ -13,6 +13,7 @@
 - Tooltips on chip hover (category name) and on tree/search rows (node definition)
 - Legend button showing the category/color mapping used by the chips
 - Local ID builder, with primary/secondary item slots and metadata tag rows (standard values) for the displayed codebooks
+- Mapping a Gmod tree node to the Local ID builder's primary/secondary slot from its context menu
 
 #### Dependencies
 

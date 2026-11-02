@@ -6,8 +6,10 @@
 
 #include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/core/GmodNode.h>
+#include <dnv/vista/sdk/core/GmodPath.h>
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace qvistools
 {
@@ -213,6 +215,56 @@ namespace qvistools
         }
 
         return index(static_cast<int>(nodeIt - entryChildren.begin()), 0, current);
+    }
+
+    std::optional<dnv::vista::sdk::GmodPath> GmodTreeModel::pathForIndex(const QModelIndex& index) const
+    {
+        if (!index.isValid())
+        {
+            return std::nullopt;
+        }
+
+        const auto* handle{ static_cast<NodeHandle*>(index.internalPointer()) };
+        const auto* node{ handle->node };
+
+        const auto productType = node->productType();
+        const auto* finalNode = productType.has_value() ? *productType : node;
+
+        std::vector<const dnv::vista::sdk::GmodNode*> ancestors;
+        const dnv::vista::sdk::GmodNode* current{ node };
+        while (current != m_rootNode && !current->parents().isEmpty())
+        {
+            current = current->parents()[0];
+            ancestors.push_back(current);
+        }
+
+        if (current != m_rootNode)
+        {
+            return std::nullopt;
+        }
+
+        std::reverse(ancestors.begin(), ancestors.end());
+
+        std::vector<dnv::vista::sdk::GmodNode> parents;
+        parents.reserve(ancestors.size() + 1);
+        for (const auto* n : ancestors)
+        {
+            parents.push_back(*n);
+        }
+
+        if (productType.has_value())
+        {
+            parents.push_back(*node);
+        }
+
+        try
+        {
+            return dnv::vista::sdk::GmodPath{ std::move(parents), *finalNode };
+        }
+        catch (const std::exception&)
+        {
+            return std::nullopt;
+        }
     }
 
     GmodTreeModel::NodeHandle* GmodTreeModel::handleFor(

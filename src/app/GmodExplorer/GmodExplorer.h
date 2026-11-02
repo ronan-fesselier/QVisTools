@@ -5,8 +5,11 @@
 #include <QGroupBox>
 #include <QModelIndex>
 
+#include <optional>
+
 class QComboBox;
 class QEvent;
+class QMouseEvent;
 class QPushButton;
 class QToolButton;
 class QTreeView;
@@ -14,6 +17,7 @@ class QTreeView;
 namespace dnv::vista::sdk
 {
     class Gmod;
+    class GmodPath;
 } // namespace dnv::vista::sdk
 
 namespace qvistools
@@ -26,6 +30,12 @@ namespace qvistools
         Q_OBJECT
 
     public:
+        enum class MapTarget
+        {
+            Primary,
+            Secondary
+        };
+
         explicit GmodExplorer(const dnv::vista::sdk::Gmod& gmod, QWidget* parent = nullptr);
 
     private:
@@ -40,6 +50,7 @@ namespace qvistools
         void onVersionChanged(int index);
         void onRootCollapsed(const QModelIndex& index);
         void onSearchMatchActivated(const viscore::gmod::SearchIndex::Match& match);
+        bool onTreeViewMousePress(QMouseEvent* event);
 
         const dnv::vista::sdk::Gmod* m_gmod;
 
@@ -55,5 +66,6 @@ namespace qvistools
 
     signals:
         void gmodChanged(const dnv::vista::sdk::Gmod& gmod);
+        void nodeMapped(const dnv::vista::sdk::GmodPath& path, GmodExplorer::MapTarget target);
     };
 } // namespace qvistools

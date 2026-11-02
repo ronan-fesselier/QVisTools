@@ -8,6 +8,7 @@
 #include <QHash>
 
 #include <memory>
+#include <optional>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -15,6 +16,7 @@
 namespace dnv::vista::sdk
 {
     class Gmod;
+    class GmodPath;
 } // namespace dnv::vista::sdk
 
 namespace qvistools
@@ -40,6 +42,7 @@ namespace qvistools
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
         [[nodiscard]] QModelIndex indexForMatch(const viscore::gmod::SearchIndex::Match& match) const;
+        [[nodiscard]] std::optional<dnv::vista::sdk::GmodPath> pathForIndex(const QModelIndex& index) const;
 
     private:
         struct NodeHandle
