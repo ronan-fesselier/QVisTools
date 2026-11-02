@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
     gui/GmodTree/GmodTreeItemDelegate.cpp
     gui/GmodTree/GmodTreeModel.cpp
 
+    gui/LocalId/GmodPathIndividualizeDialog.cpp
     gui/LocalId/GmodPathItemSlot.cpp
     gui/LocalId/LocalIdBuilderWidget.cpp
     gui/LocalId/MetadataTagRow.cpp

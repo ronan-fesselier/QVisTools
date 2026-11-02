@@ -1,5 +1,9 @@
 #include "GmodPathItemSlot.h"
 
+#include "app/gui/LocalId/GmodPathIndividualizeDialog.h"
+
+#include <dnv/vista/sdk/core/GmodNode.h>
+
 #include <QAction>
 #include <QFontMetrics>
 #include <QMenu>
@@ -21,8 +25,9 @@ namespace qvistools::gui
         unsetCursor();
     }
 
-    void GmodPathItemSlot::setChips(std::vector<ChipSegment> segments)
+    void GmodPathItemSlot::setChips(dnv::vista::sdk::GmodPath path, std::vector<ChipSegment> segments)
     {
+        m_path = std::move(path);
         m_chips = std::move(segments);
         setCursor(Qt::PointingHandCursor);
         updateGeometry();
@@ -31,6 +36,7 @@ namespace qvistools::gui
 
     void GmodPathItemSlot::clear()
     {
+        m_path.reset();
         m_chips.clear();
         unsetCursor();
         updateGeometry();
@@ -46,8 +52,20 @@ namespace qvistools::gui
         }
 
         auto* menu{ new QMenu{ this } };
-        auto* unmapAction{ menu->addAction(tr("Unmap")) };
 
+        if (m_path.has_value() && m_path->isIndividualizable())
+        {
+            auto* editLocationAction{ menu->addAction(tr("Edit location")) };
+            QObject::connect(editLocationAction, &QAction::triggered, this, [this]() {
+                GmodPathIndividualizeDialog dialog{ *m_path, std::nullopt, this };
+                if (dialog.exec() == QDialog::Accepted)
+                {
+                    emit pathEdited(dialog.result());
+                }
+            });
+        }
+
+        auto* unmapAction{ menu->addAction(tr("Unmap")) };
         QObject::connect(unmapAction, &QAction::triggered, this, &GmodPathItemSlot::unmapRequested);
 
         menu->popup(event->globalPosition().toPoint());

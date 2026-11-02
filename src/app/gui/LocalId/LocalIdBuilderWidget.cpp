@@ -88,7 +88,7 @@ namespace qvistools::gui
                 segments.push_back({ QString::fromStdString(code), categoryColor(category), category, icon });
             }
 
-            slot.setChips(std::move(segments));
+            slot.setChips(*path, std::move(segments));
         }
     } // namespace
 
@@ -191,6 +191,15 @@ namespace qvistools::gui
 
         QObject::connect(
             m_copyButton, &QPushButton::clicked, this, [this]() { QApplication::clipboard()->setText(m_localIdText); });
+
+        QObject::connect(
+            m_primaryItemSlot, &GmodPathItemSlot::pathEdited, this, [this](const dnv::vista::sdk::GmodPath& path) {
+                setPrimaryItem(path);
+            });
+        QObject::connect(
+            m_secondaryItemSlot, &GmodPathItemSlot::pathEdited, this, [this](const dnv::vista::sdk::GmodPath& path) {
+                setSecondaryItem(path);
+            });
     }
 
     void LocalIdBuilderWidget::rebuildMetadataRows()

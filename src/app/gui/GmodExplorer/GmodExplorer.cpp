@@ -5,6 +5,7 @@
 #include "app/gui/detail/QStringUtils.h"
 #include "app/gui/GmodTree/GmodTreeItemDelegate.h"
 #include "app/gui/GmodTree/GmodTreeModel.h"
+#include "app/gui/LocalId/GmodPathIndividualizeDialog.h"
 #include "app/gui/Search/GmodSearchBar.h"
 #include "app/gui/Shared/GmodChipRenderer.h"
 
@@ -251,10 +252,25 @@ namespace qvistools::gui
         auto* primaryAction{ menu->addAction(tr("Map to Primary")) };
         auto* secondaryAction{ menu->addAction(tr("Map to Secondary")) };
 
-        QObject::connect(
-            primaryAction, &QAction::triggered, this, [this, path]() { emit nodeMapped(*path, MapTarget::Primary); });
-        QObject::connect(secondaryAction, &QAction::triggered, this, [this, path]() {
-            emit nodeMapped(*path, MapTarget::Secondary);
+        const auto mapWithIndividualization{ [this, path](MapTarget target) {
+            if (!path->isIndividualizable())
+            {
+                emit nodeMapped(*path, target);
+                return;
+            }
+
+            GmodPathIndividualizeDialog dialog{ *path, std::nullopt, m_treeView };
+            if (dialog.exec() == QDialog::Accepted)
+            {
+                emit nodeMapped(dialog.result(), target);
+            }
+        } };
+
+        QObject::connect(primaryAction, &QAction::triggered, this, [mapWithIndividualization]() {
+            mapWithIndividualization(MapTarget::Primary);
+        });
+        QObject::connect(secondaryAction, &QAction::triggered, this, [mapWithIndividualization]() {
+            mapWithIndividualization(MapTarget::Secondary);
         });
 
         menu->popup(event->globalPosition().toPoint());
