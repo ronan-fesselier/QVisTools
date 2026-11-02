@@ -39,7 +39,7 @@
 
 #### GUI
 
-- `MainWindow`: main window with status bar (showing the Gmod VIS version and node count), File menu and Help menu (About dialog listing application, Qt and `dnv-vista-sdk` versions)
+- `MainWindow`: main window with status bar (showing the Gmod VIS version and node count), File menu and Help menu (About dialog listing application, Qt and `dnv-vista-sdk` versions). Central widget splits `LocalIdBuilderWidget` and `GmodExplorer` side by side in a `QSplitter`
 
 - `GmodTreeModel`: `QAbstractItemModel` exposing the Gmod tree, with sorted/substituted children caching, `ProductNodeRole`/`SkippedParentNodeRole` exposing substitution context to the view, and a tooltip showing the node's common/plain definition
 - `GmodTreeModel::indexForMatch()`: resolves the model index displaying a `SearchIndex::Match`'s node, at a cost proportional to the path depth

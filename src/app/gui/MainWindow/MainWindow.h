@@ -10,6 +10,7 @@ namespace dnv::vista::sdk
 namespace qvistools::gui
 {
     class GmodExplorer;
+    class LocalIdBuilderWidget;
 
     class MainWindow final : public QMainWindow
     {
@@ -23,6 +24,7 @@ namespace qvistools::gui
         void setupFileMenu();
         void setupHelpMenu();
 
+        LocalIdBuilderWidget* m_localIdBuilder;
         GmodExplorer* m_explorer;
     };
 } // namespace qvistools::gui

@@ -4,6 +4,7 @@
 
 #include "app/gui/detail/QStringUtils.h"
 #include "app/gui/GmodExplorer/GmodExplorer.h"
+#include "app/gui/LocalId/LocalIdBuilderWidget.h"
 
 #include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/Version.h>
@@ -14,6 +15,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QMenuBar>
+#include <QSplitter>
 #include <QStatusBar>
 #include <QVBoxLayout>
 
@@ -23,16 +25,24 @@ namespace qvistools::gui
 {
     MainWindow::MainWindow(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
         : QMainWindow{ parent },
+          m_localIdBuilder{ new LocalIdBuilderWidget{ gmod.version(), this } },
           m_explorer{ new GmodExplorer{ gmod, this } }
     {
         setupStatusBar(gmod);
         setupFileMenu();
         setupHelpMenu();
 
+        auto* splitter{ new QSplitter{ Qt::Horizontal, this } };
+        splitter->setChildrenCollapsible(false);
+        splitter->addWidget(m_localIdBuilder);
+        splitter->addWidget(m_explorer);
+        splitter->setStretchFactor(0, 1);
+        splitter->setStretchFactor(1, 1);
+
         auto* centralWidget{ new QWidget{ this } };
         auto* layout{ new QVBoxLayout{ centralWidget } };
         layout->setContentsMargins(8, 8, 8, 8);
-        layout->addWidget(m_explorer);
+        layout->addWidget(splitter);
 
         setCentralWidget(centralWidget);
     }
