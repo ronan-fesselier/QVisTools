@@ -3,6 +3,7 @@
 #include "core/vis/codebooks/CodebookValues.h"
 #include "core/vis/gmod/NodeCategory.h"
 #include "core/vis/localid/LocalId.h"
+#include "core/vis/universalid/UniversalId.h"
 
 #include "app/gui/detail/QStringUtils.h"
 #include "GmodPathItemSlot.h"
@@ -93,7 +94,7 @@ namespace qvistools::gui
     } // namespace
 
     LocalIdBuilderWidget::LocalIdBuilderWidget(dnv::vista::sdk::VisVersion version, QWidget* parent)
-        : QGroupBox{ tr("Local ID builder"), parent },
+        : QGroupBox{ tr("Local ID and Universal ID builder"), parent },
           m_version{ version },
           m_versionLabel{ makeSeparatorLabel(versionLabelText(version), this) },
           m_primaryItemSlot{ new GmodPathItemSlot{ tr("Primary"), this } },
@@ -102,7 +103,11 @@ namespace qvistools::gui
           m_verboseCheckBox{ new QCheckBox{ tr("Verbose"), this } },
           m_localIdValue{ new QLineEdit{ this } },
           m_copyButton{ new QPushButton{ tr("Copy"), this } },
-          m_errorsValue{ new QLabel{ this } }
+          m_imoEdit{ new QLineEdit{ this } },
+          m_universalIdValue{ new QLineEdit{ this } },
+          m_universalIdCopyButton{ new QPushButton{ tr("Copy"), this } },
+          m_localIdErrorsValue{ new QLabel{ this } },
+          m_universalIdErrorsValue{ new QLabel{ this } }
     {
         setupLayout();
         setupConnections();
@@ -143,17 +148,17 @@ namespace qvistools::gui
         grid->setSpacing(4);
 
         int col = 0;
-        grid->addWidget(m_versionLabel, 0, col++);
-        grid->addWidget(m_primaryItemSlot, 0, col++);
-        grid->addWidget(makeSeparatorLabel(QStringLiteral("/ sec /"), this), 0, col++);
-        grid->addWidget(m_secondaryItemSlot, 0, col++);
-        grid->addWidget(makeSeparatorLabel(QStringLiteral("/ meta"), this), 0, col++);
+        grid->addWidget(m_versionLabel, 1, col++);
+        grid->addWidget(m_primaryItemSlot, 1, col++);
+        grid->addWidget(makeSeparatorLabel(QStringLiteral("/ sec /"), this), 1, col++);
+        grid->addWidget(m_secondaryItemSlot, 1, col++);
+        grid->addWidget(makeSeparatorLabel(QStringLiteral("/ meta"), this), 1, col++);
 
         m_metadataColumn = col;
 
         grid->setColumnStretch(m_metadataColumn, 1);
 
-        const auto resultRow{ static_cast<int>(core::vis::DISPLAYED_CODEBOOKS.size()) };
+        const auto resultRow{ static_cast<int>(core::vis::DISPLAYED_CODEBOOKS.size()) + 1 };
 
         m_localIdValue->setReadOnly(true);
 
@@ -163,16 +168,32 @@ namespace qvistools::gui
         localIdLayout->addWidget(m_copyButton);
         grid->addLayout(localIdLayout, resultRow, 0, 1, m_metadataColumn + 1);
 
-        m_errorsValue->setWordWrap(true);
-        m_errorsValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        m_imoEdit->setPlaceholderText(tr("IMO number"));
+        m_imoEdit->setMaximumWidth(120);
 
-        QPalette errorPalette{ m_errorsValue->palette() };
+        m_universalIdValue->setReadOnly(true);
+
+        auto* universalIdLayout{ new QHBoxLayout };
+        universalIdLayout->addWidget(makeSeparatorLabel(tr("IMO"), this));
+        universalIdLayout->addWidget(m_imoEdit);
+        universalIdLayout->addWidget(m_universalIdValue, 1);
+        universalIdLayout->addWidget(m_universalIdCopyButton);
+        grid->addLayout(universalIdLayout, resultRow + 1, 0, 1, m_metadataColumn + 1);
+
+        QPalette errorPalette{ m_localIdErrorsValue->palette() };
         errorPalette.setColor(QPalette::WindowText, Qt::red);
-        m_errorsValue->setPalette(errorPalette);
 
-        grid->addWidget(m_errorsValue, resultRow + 1, 0, 1, m_metadataColumn + 1);
+        m_localIdErrorsValue->setWordWrap(true);
+        m_localIdErrorsValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        m_localIdErrorsValue->setPalette(errorPalette);
+        grid->addWidget(m_localIdErrorsValue, resultRow + 2, 0, 1, m_metadataColumn + 1);
 
-        grid->setRowStretch(resultRow + 2, 1);
+        m_universalIdErrorsValue->setWordWrap(true);
+        m_universalIdErrorsValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        m_universalIdErrorsValue->setPalette(errorPalette);
+        grid->addWidget(m_universalIdErrorsValue, resultRow + 3, 0, 1, m_metadataColumn + 1);
+
+        grid->setRowStretch(resultRow + 4, 1);
     }
 
     void LocalIdBuilderWidget::setupConnections()
@@ -200,6 +221,12 @@ namespace qvistools::gui
             m_secondaryItemSlot, &GmodPathItemSlot::pathEdited, this, [this](const dnv::vista::sdk::GmodPath& path) {
                 setSecondaryItem(path);
             });
+
+        QObject::connect(m_imoEdit, &QLineEdit::textChanged, this, &LocalIdBuilderWidget::rebuildLocalId);
+
+        QObject::connect(m_universalIdCopyButton, &QPushButton::clicked, this, [this]() {
+            QApplication::clipboard()->setText(m_universalIdText);
+        });
     }
 
     void LocalIdBuilderWidget::rebuildMetadataRows()
@@ -227,7 +254,7 @@ namespace qvistools::gui
 
             auto* row{ new MetadataTagRow{ name, standardValues, this } };
             m_metadataRows[i] = row;
-            grid->addWidget(row, static_cast<int>(i), m_metadataColumn);
+            grid->addWidget(row, static_cast<int>(i) + 1, m_metadataColumn);
 
             QObject::connect(row, &MetadataTagRow::valueChanged, this, [this](auto, auto) { rebuildLocalId(); });
         }
@@ -237,10 +264,6 @@ namespace qvistools::gui
 
     void LocalIdBuilderWidget::rebuildLocalId()
     {
-        m_errorsValue->clear();
-        m_localIdText.clear();
-        m_copyButton->setEnabled(false);
-
         std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>> tags;
         for (const auto* row : m_metadataRows)
         {
@@ -259,24 +282,59 @@ namespace qvistools::gui
         const auto result{ core::vis::buildLocalId(
             m_version, m_primaryPath, m_secondaryPath, tags, m_verboseCheckBox->isChecked()) };
 
+        m_localIdText.clear();
+        m_localIdErrorsValue->clear();
+
         if (!result.localId.has_value())
         {
             m_localIdValue->setText(tr("(invalid)"));
+            m_copyButton->setEnabled(false);
 
             QStringList lines;
             for (const auto& error : result.errors)
             {
                 lines << detail::toQString(error.message);
             }
-            m_errorsValue->setText(lines.join(QStringLiteral("\n")));
-            emit localIdChanged(m_localIdText);
+            m_localIdErrorsValue->setText(lines.join(QStringLiteral("\n")));
+        }
+        else
+        {
+            m_localIdText = detail::toQString(*result.localId);
+            m_localIdValue->setText(m_localIdText);
+            m_copyButton->setEnabled(true);
+        }
+
+        emit localIdChanged(m_localIdText);
+
+        m_universalIdText.clear();
+        m_universalIdValue->clear();
+        m_universalIdCopyButton->setEnabled(false);
+        m_universalIdErrorsValue->clear();
+
+        const auto imoText{ m_imoEdit->text().trimmed().toStdString() };
+        if (imoText.empty())
+        {
             return;
         }
 
-        m_localIdText = detail::toQString(*result.localId);
-        m_localIdValue->setText(m_localIdText);
-        m_copyButton->setEnabled(true);
+        const auto universalIdResult{ core::vis::buildUniversalId(
+            m_version, imoText, m_primaryPath, m_secondaryPath, tags, m_verboseCheckBox->isChecked()) };
 
-        emit localIdChanged(m_localIdText);
+        if (!universalIdResult.universalId.has_value())
+        {
+            m_universalIdValue->setText(tr("(invalid)"));
+
+            QStringList lines;
+            for (const auto& error : universalIdResult.errors)
+            {
+                lines << detail::toQString(error.message);
+            }
+            m_universalIdErrorsValue->setText(lines.join(QStringLiteral("\n")));
+            return;
+        }
+
+        m_universalIdText = detail::toQString(*universalIdResult.universalId);
+        m_universalIdValue->setText(m_universalIdText);
+        m_universalIdCopyButton->setEnabled(true);
     }
 } // namespace qvistools::gui

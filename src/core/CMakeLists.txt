@@ -12,6 +12,8 @@ add_library(qvistools-core STATIC
     vis/gmod/GmodPathLocation.cpp
     vis/gmod/NodeCategory.cpp
     vis/gmod/SearchIndex.cpp
+
+    vis/universalid/UniversalId.cpp
 )
 add_library(qvistools::core ALIAS qvistools-core)
 

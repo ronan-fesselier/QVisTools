@@ -66,8 +66,15 @@ namespace qvistools::gui
         QCheckBox* m_verboseCheckBox;
         QLineEdit* m_localIdValue;
         QPushButton* m_copyButton;
-        QLabel* m_errorsValue;
         QString m_localIdText;
+
+        QLineEdit* m_imoEdit;
+        QLineEdit* m_universalIdValue;
+        QPushButton* m_universalIdCopyButton;
+        QString m_universalIdText;
+
+        QLabel* m_localIdErrorsValue;
+        QLabel* m_universalIdErrorsValue;
 
     signals:
         void primaryItemUnmapRequested();
