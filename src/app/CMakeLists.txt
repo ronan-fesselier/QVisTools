@@ -14,6 +14,11 @@ add_executable(${PROJECT_NAME}
     GmodExplorer/GmodTreeItemDelegate.cpp
     GmodExplorer/GmodTreeModel.cpp
 
+    Id/GmodPathItemSlot.cpp
+    Id/IdPanel.cpp
+    Id/LocalIdBuilderWidget.cpp
+    Id/MetadataTagRow.cpp
+
     MainWindow/MainWindow.cpp
 
     shared/GmodChipRenderer.cpp

@@ -28,7 +28,8 @@ namespace qvistools
     enum class ChipIcon
     {
         None,
-        Link
+        Link,
+        Unlink
     };
 
     struct ChipSegment

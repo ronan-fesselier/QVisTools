@@ -17,6 +17,13 @@ namespace qvistools
         constexpr int LINK_ICON_SIZE{ 10 };
         constexpr int LINK_ICON_SPACING{ 4 };
 
+        const QPixmap& chipIconPixmap(ChipIcon icon)
+        {
+            static const QPixmap linkPixmap{ QStringLiteral(":/icons/link.png") };
+            static const QPixmap unlinkPixmap{ QStringLiteral(":/icons/unlink.png") };
+            return icon == ChipIcon::Link ? linkPixmap : unlinkPixmap;
+        }
+
         void drawChipIcon(QPainter* painter, QRect iconRect, ChipIcon icon)
         {
             if (icon == ChipIcon::None)
@@ -31,10 +38,10 @@ namespace qvistools
             painter->drawEllipse(iconRect.adjusted(-2, -2, 2, 2));
             painter->restore();
 
-            static const QPixmap linkPixmap{ QStringLiteral(":/icons/link.png") };
+            const auto& pixmap{ chipIconPixmap(icon) };
             painter->drawPixmap(
                 iconRect,
-                linkPixmap.scaled(
+                pixmap.scaled(
                     iconRect.size() * painter->device()->devicePixelRatio(),
                     Qt::KeepAspectRatio,
                     Qt::SmoothTransformation));

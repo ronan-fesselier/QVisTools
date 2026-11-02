@@ -10,6 +10,7 @@ namespace dnv::vista::sdk
 namespace qvistools
 {
     class GmodExplorer;
+    class IdPanel;
 
     class MainWindow final : public QMainWindow
     {
@@ -23,6 +24,7 @@ namespace qvistools
         void setupFileMenu();
         void setupHelpMenu();
 
+        IdPanel* m_IdPanel;
         GmodExplorer* m_explorer;
     };
 } // namespace qvistools

@@ -12,6 +12,7 @@
 - Gmod search bar, matching nodes by code, name, or definition (including plural/singular word forms), with results shown as ancestor chip paths and jumping straight to the node in the tree
 - Tooltips on chip hover (category name) and on tree/search rows (node definition)
 - Legend button showing the category/color mapping used by the chips
+- Local ID builder, with primary/secondary item slots and metadata tag rows (standard values) for the displayed codebooks
 
 #### Dependencies
 
