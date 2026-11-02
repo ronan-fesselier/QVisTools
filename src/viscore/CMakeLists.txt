@@ -3,6 +3,8 @@
 #==============================================================================
 
 add_library(viscore STATIC
+    codebooks/CodebookValues.cpp
+
     gmod/AncestorPath.cpp
     gmod/GmodNodeResolution.cpp
     gmod/GmodPathLocation.cpp
