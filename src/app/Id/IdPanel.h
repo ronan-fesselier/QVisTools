@@ -15,6 +15,7 @@ namespace qvistools
 {
     class IdErrorsWidget;
     class LocalIdBuilderWidget;
+    class ParseIdWidget;
     class UniversalIdBuilderWidget;
 
     class IdPanel final : public QGroupBox
@@ -32,6 +33,9 @@ namespace qvistools
         void setupLayout();
         void setupConnections();
 
+        dnv::vista::sdk::VisVersion m_version;
+
+        ParseIdWidget* m_parseId;
         LocalIdBuilderWidget* m_builder;
         UniversalIdBuilderWidget* m_universalIdBuilder;
         IdErrorsWidget* m_errors;
@@ -39,5 +43,6 @@ namespace qvistools
     signals:
         void primaryItemUnmapRequested();
         void secondaryItemUnmapRequested();
+        void existingIdVersionParsed(dnv::vista::sdk::VisVersion version);
     };
 } // namespace qvistools

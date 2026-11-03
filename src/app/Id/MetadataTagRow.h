@@ -25,6 +25,7 @@ namespace qvistools
         [[nodiscard]] dnv::vista::sdk::CodebookName codebookName() const noexcept { return m_name; }
         [[nodiscard]] QString value() const;
 
+        void setValue(const QString& value);
         void setValueFieldMinimumWidth(int width);
 
     private:

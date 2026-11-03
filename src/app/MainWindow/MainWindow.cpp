@@ -153,5 +153,10 @@ namespace qvistools
         QObject::connect(m_idPanel, &IdPanel::secondaryItemUnmapRequested, this, [this]() {
             m_idPanel->setSecondaryItem(std::nullopt);
         });
+
+        QObject::connect(
+            m_idPanel, &IdPanel::existingIdVersionParsed, this, [this](dnv::vista::sdk::VisVersion version) {
+                m_explorer->setVisVersion(version);
+            });
     }
 } // namespace qvistools

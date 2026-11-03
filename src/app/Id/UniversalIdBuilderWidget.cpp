@@ -36,6 +36,16 @@ namespace qvistools
         rebuildUniversalId();
     }
 
+    void UniversalIdBuilderWidget::setImoNumberText(const QString& imoNumberText)
+    {
+        m_imoEdit->setText(imoNumberText);
+    }
+
+    void UniversalIdBuilderWidget::setVerbose(bool verbose)
+    {
+        m_verboseCheckBox->setChecked(verbose);
+    }
+
     void UniversalIdBuilderWidget::setLocalIdBuilder(
         const std::optional<dnv::vista::sdk::LocalIdBuilder>& localIdBuilder)
     {

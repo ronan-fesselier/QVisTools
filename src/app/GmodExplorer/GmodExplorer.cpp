@@ -103,6 +103,11 @@ namespace qvistools
         expandRoot();
     }
 
+    void GmodExplorer::setVisVersion(dnv::vista::sdk::VisVersion version)
+    {
+        m_versionCombo->setCurrentIndex(m_versionCombo->findData(QVariant::fromValue(static_cast<int>(version))));
+    }
+
     void GmodExplorer::setupTreeView()
     {
         m_treeView->setModel(m_model);

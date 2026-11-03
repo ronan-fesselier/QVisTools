@@ -73,6 +73,18 @@ namespace qvistools
         return m_valueCombo != nullptr ? m_valueCombo->currentText() : m_valueEdit->text();
     }
 
+    void MetadataTagRow::setValue(const QString& value)
+    {
+        if (m_valueCombo != nullptr)
+        {
+            m_valueCombo->setCurrentText(value);
+        }
+        else
+        {
+            m_valueEdit->setText(value);
+        }
+    }
+
     void MetadataTagRow::setValueFieldMinimumWidth(int width)
     {
         if (m_valueCombo != nullptr)

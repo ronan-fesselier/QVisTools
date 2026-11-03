@@ -23,6 +23,8 @@ namespace qvistools
 
         void setVisVersion(dnv::vista::sdk::VisVersion version);
         void setLocalIdBuilder(const std::optional<dnv::vista::sdk::LocalIdBuilder>& localIdBuilder);
+        void setImoNumberText(const QString& imoNumberText);
+        void setVerbose(bool verbose);
 
     private:
         void setupLayout();

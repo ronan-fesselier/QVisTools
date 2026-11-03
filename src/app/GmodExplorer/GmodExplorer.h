@@ -2,6 +2,8 @@
 
 #include <viscore/gmod/SearchIndex.h>
 
+#include <dnv/vista/sdk/core/VisVersions.h>
+
 #include <QGroupBox>
 #include <QModelIndex>
 
@@ -37,6 +39,8 @@ namespace qvistools
         };
 
         explicit GmodExplorer(const dnv::vista::sdk::Gmod& gmod, QWidget* parent = nullptr);
+
+        void setVisVersion(dnv::vista::sdk::VisVersion version);
 
     private:
         void setupTreeView();

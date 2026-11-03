@@ -5,6 +5,10 @@
 #include <dnv/vista/sdk/core/LocalIdBuilder.h>
 #include <dnv/vista/sdk/core/VisVersions.h>
 
+#include <string>
+#include <utility>
+#include <vector>
+
 #include <QGroupBox>
 #include <QStringList>
 
@@ -31,6 +35,12 @@ namespace qvistools
         void setPrimaryItem(const std::optional<dnv::vista::sdk::GmodPath>& path);
         void setSecondaryItem(const std::optional<dnv::vista::sdk::GmodPath>& path);
         void setVisVersion(dnv::vista::sdk::VisVersion version);
+
+        void applyParsedId(
+            const std::optional<dnv::vista::sdk::GmodPath>& primaryItem,
+            const std::optional<dnv::vista::sdk::GmodPath>& secondaryItem,
+            const std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>>& tags,
+            bool verbose);
 
     private:
         void setupLayout();

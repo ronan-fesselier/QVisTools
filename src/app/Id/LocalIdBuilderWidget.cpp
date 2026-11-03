@@ -25,6 +25,7 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <exception>
 #include <string>
 #include <string_view>
@@ -131,6 +132,35 @@ namespace qvistools
     {
         m_secondaryPath = path;
         fillSlot(*m_secondaryItemSlot, path);
+        rebuildLocalId();
+    }
+
+    void LocalIdBuilderWidget::applyParsedId(
+        const std::optional<dnv::vista::sdk::GmodPath>& primaryItem,
+        const std::optional<dnv::vista::sdk::GmodPath>& secondaryItem,
+        const std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>>& tags,
+        bool verbose)
+    {
+        m_primaryPath = primaryItem;
+        m_secondaryPath = secondaryItem;
+        fillSlot(*m_primaryItemSlot, m_primaryPath);
+        fillSlot(*m_secondaryItemSlot, m_secondaryPath);
+
+        m_verboseCheckBox->setChecked(verbose);
+
+        for (auto* row : m_metadataRows)
+        {
+            if (row == nullptr)
+            {
+                continue;
+            }
+
+            const auto tagIt{ std::find_if(
+                tags.begin(), tags.end(), [row](const auto& tag) { return tag.first == row->codebookName(); }) };
+
+            row->setValue(tagIt != tags.end() ? detail::toQString(tagIt->second) : QString{});
+        }
+
         rebuildLocalId();
     }
 

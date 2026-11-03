@@ -36,6 +36,12 @@ namespace qvistools
         layout->addWidget(scrollArea);
     }
 
+    void IdErrorsWidget::setParseErrors(const QStringList& errors)
+    {
+        m_parseErrors = errors;
+        refresh();
+    }
+
     void IdErrorsWidget::setLocalIdErrors(const QStringList& errors)
     {
         m_localIdErrors = errors;
@@ -50,7 +56,8 @@ namespace qvistools
 
     void IdErrorsWidget::refresh()
     {
-        QStringList all{ m_localIdErrors };
+        QStringList all{ m_parseErrors };
+        all << m_localIdErrors;
         all << m_universalIdErrors;
         m_errorsLabel->setText(all.join(QStringLiteral("\n")));
     }
