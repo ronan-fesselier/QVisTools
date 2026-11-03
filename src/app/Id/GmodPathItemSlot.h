@@ -2,8 +2,11 @@
 
 #include "app/shared/GmodChipRenderer.h"
 
+#include <dnv/vista/sdk/core/GmodPath.h>
+
 #include <QAbstractButton>
 
+#include <optional>
 #include <vector>
 
 namespace qvistools
@@ -15,7 +18,7 @@ namespace qvistools
     public:
         explicit GmodPathItemSlot(QString placeholderText, QWidget* parent = nullptr);
 
-        void setChips(std::vector<ChipSegment> segments);
+        void setChips(dnv::vista::sdk::GmodPath path, std::vector<ChipSegment> segments);
         void clear();
 
         [[nodiscard]] bool isFilled() const noexcept { return !m_chips.empty(); }
@@ -28,8 +31,10 @@ namespace qvistools
     private:
         QString m_placeholderText;
         std::vector<ChipSegment> m_chips;
+        std::optional<dnv::vista::sdk::GmodPath> m_path;
 
     signals:
         void unmapRequested();
+        void pathEdited(const dnv::vista::sdk::GmodPath& path);
     };
 } // namespace qvistools
