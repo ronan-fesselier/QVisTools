@@ -160,5 +160,11 @@ namespace qvistools::gui
         QObject::connect(m_localIdBuilder, &LocalIdBuilderWidget::secondaryItemUnmapRequested, this, [this]() {
             m_localIdBuilder->setSecondaryItem(std::nullopt);
         });
+
+        QObject::connect(
+            m_localIdBuilder,
+            &LocalIdBuilderWidget::existingIdVersionChanged,
+            this,
+            [this](dnv::vista::sdk::VisVersion version) { m_explorer->setVisVersion(version); });
     }
 } // namespace qvistools::gui

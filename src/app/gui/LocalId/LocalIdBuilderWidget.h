@@ -51,6 +51,7 @@ namespace qvistools::gui
         void setupConnections();
         void rebuildMetadataRows();
         void rebuildLocalId();
+        void parseExistingId();
 
         dnv::vista::sdk::VisVersion m_version;
         std::optional<dnv::vista::sdk::GmodPath> m_primaryPath;
@@ -76,9 +77,14 @@ namespace qvistools::gui
         QLabel* m_localIdErrorsValue;
         QLabel* m_universalIdErrorsValue;
 
+        QLineEdit* m_existingIdEdit;
+        QPushButton* m_parseButton;
+        QLabel* m_parseErrorsValue;
+
     signals:
         void primaryItemUnmapRequested();
         void secondaryItemUnmapRequested();
         void localIdChanged(const QString& localIdText);
+        void existingIdVersionChanged(dnv::vista::sdk::VisVersion version);
     };
 } // namespace qvistools::gui

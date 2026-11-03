@@ -6,6 +6,7 @@ add_library(qvistools-core STATIC
     vis/codebooks/CodebookValues.cpp
 
     vis/localid/LocalId.cpp
+    vis/localid/ParseId.cpp
 
     vis/gmod/AncestorPath.cpp
     vis/gmod/GmodNodeChildren.cpp

@@ -2,6 +2,8 @@
 
 #include "core/vis/gmod/SearchIndex.h"
 
+#include <dnv/vista/sdk/core/VisVersions.h>
+
 #include <QGroupBox>
 #include <QModelIndex>
 
@@ -41,6 +43,12 @@ namespace qvistools::gui
         Q_ENUM(MapTarget)
 
         explicit GmodExplorer(const dnv::vista::sdk::Gmod& gmod, QWidget* parent = nullptr);
+
+        /**
+         * @brief Switch the displayed Gmod to the given VIS version, as if the user had
+         *        selected it from the version combo
+         */
+        void setVisVersion(dnv::vista::sdk::VisVersion version);
 
     private:
         void setupTreeView();

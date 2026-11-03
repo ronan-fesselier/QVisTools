@@ -128,6 +128,11 @@ namespace qvistools::gui
             m_versionCombo->findData(QVariant::fromValue(static_cast<int>(gmod.version()))));
     }
 
+    void GmodExplorer::setVisVersion(dnv::vista::sdk::VisVersion version)
+    {
+        m_versionCombo->setCurrentIndex(m_versionCombo->findData(QVariant::fromValue(static_cast<int>(version))));
+    }
+
     void GmodExplorer::setupLayout()
     {
         auto* hLayout{ new QHBoxLayout };

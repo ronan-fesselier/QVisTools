@@ -3,6 +3,7 @@
 #include "core/vis/codebooks/CodebookValues.h"
 #include "core/vis/gmod/NodeCategory.h"
 #include "core/vis/localid/LocalId.h"
+#include "core/vis/localid/ParseId.h"
 #include "core/vis/universalid/UniversalId.h"
 
 #include "app/gui/detail/QStringUtils.h"
@@ -23,6 +24,7 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <vector>
@@ -107,7 +109,10 @@ namespace qvistools::gui
           m_universalIdValue{ new QLineEdit{ this } },
           m_universalIdCopyButton{ new QPushButton{ tr("Copy"), this } },
           m_localIdErrorsValue{ new QLabel{ this } },
-          m_universalIdErrorsValue{ new QLabel{ this } }
+          m_universalIdErrorsValue{ new QLabel{ this } },
+          m_existingIdEdit{ new QLineEdit{ this } },
+          m_parseButton{ new QPushButton{ tr("Parse"), this } },
+          m_parseErrorsValue{ new QLabel{ this } }
     {
         setupLayout();
         setupConnections();
@@ -137,6 +142,7 @@ namespace qvistools::gui
         m_secondaryPath.reset();
         m_primaryItemSlot->clear();
         m_secondaryItemSlot->clear();
+        m_imoEdit->clear();
 
         rebuildMetadataRows();
     }
@@ -146,6 +152,24 @@ namespace qvistools::gui
         auto* grid{ new QGridLayout{ this } };
         grid->setContentsMargins(0, 0, 0, 0);
         grid->setSpacing(4);
+
+        QPalette errorPalette{ m_localIdErrorsValue->palette() };
+        errorPalette.setColor(QPalette::WindowText, Qt::red);
+
+        m_existingIdEdit->setPlaceholderText(tr("Existing Local or Universal ID"));
+
+        auto* existingIdLayout{ new QHBoxLayout };
+        existingIdLayout->addWidget(makeSeparatorLabel(tr("Existing ID"), this));
+        existingIdLayout->addWidget(m_existingIdEdit, 1);
+        existingIdLayout->addWidget(m_parseButton);
+
+        m_parseErrorsValue->setWordWrap(true);
+        m_parseErrorsValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        m_parseErrorsValue->setPalette(errorPalette);
+
+        auto* existingIdGroupLayout{ new QVBoxLayout };
+        existingIdGroupLayout->addLayout(existingIdLayout);
+        existingIdGroupLayout->addWidget(m_parseErrorsValue);
 
         int col = 0;
         grid->addWidget(m_versionLabel, 1, col++);
@@ -157,6 +181,8 @@ namespace qvistools::gui
         m_metadataColumn = col;
 
         grid->setColumnStretch(m_metadataColumn, 1);
+
+        grid->addLayout(existingIdGroupLayout, 0, 0, 1, m_metadataColumn + 1);
 
         const auto resultRow{ static_cast<int>(core::vis::DISPLAYED_CODEBOOKS.size()) + 1 };
 
@@ -179,9 +205,6 @@ namespace qvistools::gui
         universalIdLayout->addWidget(m_universalIdValue, 1);
         universalIdLayout->addWidget(m_universalIdCopyButton);
         grid->addLayout(universalIdLayout, resultRow + 1, 0, 1, m_metadataColumn + 1);
-
-        QPalette errorPalette{ m_localIdErrorsValue->palette() };
-        errorPalette.setColor(QPalette::WindowText, Qt::red);
 
         m_localIdErrorsValue->setWordWrap(true);
         m_localIdErrorsValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -227,6 +250,9 @@ namespace qvistools::gui
         QObject::connect(m_universalIdCopyButton, &QPushButton::clicked, this, [this]() {
             QApplication::clipboard()->setText(m_universalIdText);
         });
+
+        QObject::connect(m_parseButton, &QPushButton::clicked, this, &LocalIdBuilderWidget::parseExistingId);
+        QObject::connect(m_existingIdEdit, &QLineEdit::returnPressed, this, &LocalIdBuilderWidget::parseExistingId);
     }
 
     void LocalIdBuilderWidget::rebuildMetadataRows()
@@ -336,5 +362,55 @@ namespace qvistools::gui
         m_universalIdText = detail::toQString(*universalIdResult.universalId);
         m_universalIdValue->setText(m_universalIdText);
         m_universalIdCopyButton->setEnabled(true);
+    }
+
+    void LocalIdBuilderWidget::parseExistingId()
+    {
+        m_parseErrorsValue->clear();
+
+        const auto text{ m_existingIdEdit->text().trimmed().toStdString() };
+        if (text.empty())
+        {
+            return;
+        }
+
+        const auto result{ core::vis::parseExistingId(text) };
+        if (!result.id.has_value())
+        {
+            QStringList lines;
+            for (const auto& error : result.errors)
+            {
+                lines << detail::toQString(error);
+            }
+            m_parseErrorsValue->setText(lines.join(QStringLiteral("\n")));
+            return;
+        }
+
+        const auto& parsed{ *result.id };
+
+        if (parsed.version != m_version)
+        {
+            emit existingIdVersionChanged(parsed.version);
+        }
+
+        m_verboseCheckBox->setChecked(parsed.verbose);
+        m_imoEdit->setText(parsed.imoNumberText.has_value() ? detail::toQString(*parsed.imoNumberText) : QString{});
+
+        for (auto* row : m_metadataRows)
+        {
+            if (row == nullptr)
+            {
+                continue;
+            }
+
+            const auto tagIt{ std::find_if(parsed.tags.begin(), parsed.tags.end(), [row](const auto& tag) {
+                return tag.first == row->codebookName();
+            }) };
+
+            row->setValue(tagIt != parsed.tags.end() ? detail::toQString(tagIt->second) : QString{});
+        }
+
+        setPrimaryItem(parsed.primaryItem);
+        setSecondaryItem(parsed.secondaryItem);
     }
 } // namespace qvistools::gui
