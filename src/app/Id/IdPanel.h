@@ -15,6 +15,7 @@ namespace qvistools
 {
     class IdErrorsWidget;
     class LocalIdBuilderWidget;
+    class UniversalIdBuilderWidget;
 
     class IdPanel final : public QGroupBox
     {
@@ -32,6 +33,7 @@ namespace qvistools
         void setupConnections();
 
         LocalIdBuilderWidget* m_builder;
+        UniversalIdBuilderWidget* m_universalIdBuilder;
         IdErrorsWidget* m_errors;
 
     signals:

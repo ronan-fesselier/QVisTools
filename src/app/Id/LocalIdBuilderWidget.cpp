@@ -2,6 +2,7 @@
 
 #include "app/detail/QStringUtils.h"
 #include "GmodPathItemSlot.h"
+#include "IdLayoutConstants.h"
 #include "MetadataTagRow.h"
 
 #include <viscore/codebooks/CodebookValues.h>
@@ -9,6 +10,7 @@
 #include <viscore/id/LocalId.h>
 
 #include <dnv/vista/sdk/core/Codebooks.h>
+#include <dnv/vista/sdk/core/LocalId.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
 #include <QApplication>
@@ -23,6 +25,7 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
+#include <exception>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -165,6 +168,7 @@ namespace qvistools
         m_localIdValue->setReadOnly(true);
 
         auto* localIdLabel{ new QLabel{ tr("Local ID"), this } };
+        localIdLabel->setFixedWidth(ID_LABEL_WIDTH);
 
         auto* localIdLayout{ new QHBoxLayout };
         localIdLayout->addWidget(localIdLabel);
@@ -274,26 +278,39 @@ namespace qvistools
             }
         }
 
-        const auto result{ viscore::id::buildLocalId(
+        auto builderResult{ viscore::id::buildLocalIdBuilder(
             m_version, m_primaryPath, m_secondaryPath, tags, m_verboseCheckBox->isChecked()) };
 
-        if (!result.localId.has_value())
+        if (!builderResult.builder.has_value())
         {
             m_localIdValue->setText(tr("(invalid)"));
 
             QStringList lines;
-            for (const auto& error : result.errors)
+            for (const auto& error : builderResult.errors)
             {
                 lines << detail::toQString(error.message);
             }
             emit errorsChanged(lines);
+            emit localIdBuilderChanged(std::nullopt);
             return;
         }
 
-        m_localIdText = detail::toQString(*result.localId);
+        try
+        {
+            m_localIdText = detail::toQString(builderResult.builder->build().toString());
+        }
+        catch (const std::exception& e)
+        {
+            m_localIdValue->setText(tr("(invalid)"));
+            emit errorsChanged({ detail::toQString(e.what()) });
+            emit localIdBuilderChanged(std::nullopt);
+            return;
+        }
+
         m_localIdValue->setText(m_localIdText);
         m_copyButton->setEnabled(true);
 
         emit errorsChanged({});
+        emit localIdBuilderChanged(builderResult.builder);
     }
 } // namespace qvistools

@@ -3,7 +3,6 @@
 #include <dnv/vista/sdk/core/Codebooks.h>
 #include <dnv/vista/sdk/core/GmodPath.h>
 #include <dnv/vista/sdk/core/LocalId.h>
-#include <dnv/vista/sdk/core/LocalIdBuilder.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
 #include <exception>
@@ -11,7 +10,7 @@
 
 namespace viscore::id
 {
-    LocalIdBuildResult buildLocalId(
+    LocalIdBuilderResult buildLocalIdBuilder(
         dnv::vista::sdk::VisVersion version,
         const std::optional<dnv::vista::sdk::GmodPath>& primaryItem,
         const std::optional<dnv::vista::sdk::GmodPath>& secondaryItem,
@@ -51,9 +50,25 @@ namespace viscore::id
             return { std::nullopt, std::move(errors) };
         }
 
+        return { std::move(builder), {} };
+    }
+
+    LocalIdBuildResult buildLocalId(
+        dnv::vista::sdk::VisVersion version,
+        const std::optional<dnv::vista::sdk::GmodPath>& primaryItem,
+        const std::optional<dnv::vista::sdk::GmodPath>& secondaryItem,
+        const std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>>& tags,
+        bool verbose)
+    {
+        auto builderResult{ buildLocalIdBuilder(version, primaryItem, secondaryItem, tags, verbose) };
+        if (!builderResult.builder.has_value())
+        {
+            return { std::nullopt, std::move(builderResult.errors) };
+        }
+
         try
         {
-            const auto localId{ builder.build() };
+            const auto localId{ builderResult.builder->build() };
             return { localId.toString(), {} };
         }
         catch (const std::exception& e)

@@ -15,6 +15,7 @@
 - Local ID builder, with primary/secondary item slots and metadata tag rows (standard values) for the displayed codebooks. The Local ID is built live as fields change, with a verbose mode, a copy button, and build errors shown in a dedicated panel
 - Mapping a Gmod tree node to the Local ID builder's primary/secondary slot from its context menu
 - Location individualization dialog for mapped item slots, to set number, side, vertical, transverse, and longitudinal location values on individualizable path segments
+- Universal ID builder alongside the Local ID builder, with an IMO number field and its own verbose mode
 
 #### Dependencies
 

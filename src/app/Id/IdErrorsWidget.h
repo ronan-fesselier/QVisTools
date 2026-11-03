@@ -15,8 +15,13 @@ namespace qvistools
         explicit IdErrorsWidget(QWidget* parent = nullptr);
 
         void setLocalIdErrors(const QStringList& errors);
+        void setUniversalIdErrors(const QStringList& errors);
 
     private:
+        void refresh();
+
         QLabel* m_errorsLabel;
+        QStringList m_localIdErrors;
+        QStringList m_universalIdErrors;
     };
 } // namespace qvistools

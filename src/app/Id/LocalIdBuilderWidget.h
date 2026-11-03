@@ -2,6 +2,7 @@
 
 #include <dnv/vista/sdk/core/CodebookName.h>
 #include <dnv/vista/sdk/core/GmodPath.h>
+#include <dnv/vista/sdk/core/LocalIdBuilder.h>
 #include <dnv/vista/sdk/core/VisVersions.h>
 
 #include <QGroupBox>
@@ -57,5 +58,6 @@ namespace qvistools
         void primaryItemUnmapRequested();
         void secondaryItemUnmapRequested();
         void errorsChanged(const QStringList& errors);
+        void localIdBuilderChanged(const std::optional<dnv::vista::sdk::LocalIdBuilder>& localIdBuilder);
     };
 } // namespace qvistools

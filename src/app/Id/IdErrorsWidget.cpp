@@ -38,6 +38,20 @@ namespace qvistools
 
     void IdErrorsWidget::setLocalIdErrors(const QStringList& errors)
     {
-        m_errorsLabel->setText(errors.join(QStringLiteral("\n")));
+        m_localIdErrors = errors;
+        refresh();
+    }
+
+    void IdErrorsWidget::setUniversalIdErrors(const QStringList& errors)
+    {
+        m_universalIdErrors = errors;
+        refresh();
+    }
+
+    void IdErrorsWidget::refresh()
+    {
+        QStringList all{ m_localIdErrors };
+        all << m_universalIdErrors;
+        m_errorsLabel->setText(all.join(QStringLiteral("\n")));
     }
 } // namespace qvistools

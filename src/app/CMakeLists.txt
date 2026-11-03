@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME}
     Id/IdPanel.cpp
     Id/LocalIdBuilderWidget.cpp
     Id/MetadataTagRow.cpp
+    Id/UniversalIdBuilderWidget.cpp
 
     MainWindow/MainWindow.cpp
 

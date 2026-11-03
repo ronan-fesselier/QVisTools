@@ -12,6 +12,7 @@ add_library(viscore STATIC
     gmod/SearchIndex.cpp
 
     id/LocalId.cpp
+    id/UniversalId.cpp
 )
 
 set_target_properties(viscore
