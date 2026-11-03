@@ -12,6 +12,7 @@ add_library(viscore STATIC
     gmod/SearchIndex.cpp
 
     id/LocalId.cpp
+    id/ParseId.cpp
     id/UniversalId.cpp
 )
 
