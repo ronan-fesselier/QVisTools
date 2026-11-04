@@ -1,6 +1,8 @@
 # QVisTools
 
 [![GitHub](https://img.shields.io/github/license/ronan-fesselier/QVisTools?style=flat-square)](LICENSE)
+[![Build and Test](https://img.shields.io/github/actions/workflow/status/ronan-fesselier/QVisTools/build-and-test.yml?branch=main&label=build%20and%20test&style=flat-square)](https://github.com/ronan-fesselier/QVisTools/actions/workflows/build-and-test.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/ronan-fesselier/QVisTools/codeql.yml?branch=main&label=codeql&style=flat-square)](https://github.com/ronan-fesselier/QVisTools/actions/workflows/codeql.yml)
 
 Qt desktop toolkit for implementing ISO 19848 and DNV's Vessel Information Structure (VIS).
 
