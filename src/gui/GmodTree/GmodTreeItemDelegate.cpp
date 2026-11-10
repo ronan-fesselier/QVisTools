@@ -2,14 +2,13 @@
 
 #include "detail/StringUtils.h"
 #include "gui/SdkQtTypes.h"
+#include "GmodChipRenderer.h"
 #include "GmodTreeModel.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 
 #include <QApplication>
-#include <QColor>
 #include <QPainter>
-#include <QPainterPath>
 #include <QStyle>
 
 #include <algorithm>
@@ -18,99 +17,6 @@
 
 namespace qvistools::gui
 {
-    namespace
-    {
-        constexpr int ChipHeight{ 18 };
-        constexpr int ChipRadius{ 4 };
-        constexpr int ChipPaddingH{ 6 };
-        constexpr int ChipGroupSpacing{ 6 };
-        constexpr int ChipVerticalMargin{ 4 };
-
-        struct ChipSegment
-        {
-            QString text;
-            QColor color;
-        };
-
-        QColor codeChipColor(const dnv::vista::sdk::GmodNode& node)
-        {
-            if (node.isRoot())
-            {
-                return QColor{ "#004d00" };
-            }
-            if (node.isLeafNode())
-            {
-                return node.isAssetFunctionNode() ? QColor{ "#00ff00" } : QColor{ "#ccffcc" };
-            }
-            if (node.isProductType())
-            {
-                return QColor{ "#ff0000" };
-            }
-            if (node.isFunctionComposition())
-            {
-                return QColor{ "#99cc00" };
-            }
-
-            if (node.metadata().type() == "GROUP")
-            {
-                return QColor{ "#008000" };
-            }
-            if (node.metadata().type() == "SELECTION")
-            {
-                return QColor{ "#ff9100" };
-            }
-
-            return QColor{ "#9b59b6" }; // Unhandled node category (visible marker)
-        }
-
-        int drawChipGroup(QPainter* painter, QPoint topLeft, const std::vector<ChipSegment>& segments)
-        {
-            const QFontMetrics metrics{ painter->fontMetrics() };
-
-            std::vector<int> widths;
-            widths.reserve(segments.size());
-            int totalWidth{ 0 };
-            for (const auto& segment : segments)
-            {
-                const int width{ metrics.horizontalAdvance(segment.text) + 2 * ChipPaddingH };
-                widths.push_back(width);
-                totalWidth += width;
-            }
-
-            const QRect groupRect{ topLeft, QSize{ totalWidth, ChipHeight } };
-
-            QPainterPath outline;
-            outline.addRoundedRect(groupRect, ChipRadius, ChipRadius);
-
-            painter->save();
-            painter->setRenderHint(QPainter::Antialiasing);
-            painter->setClipPath(outline);
-
-            int x{ topLeft.x() };
-            for (std::size_t i{ 0 }; i < segments.size(); ++i)
-            {
-                const QRect segmentRect{ QPoint{ x, topLeft.y() }, QSize{ widths[i], ChipHeight } };
-                painter->fillRect(segmentRect, segments[i].color);
-                painter->setPen(Qt::black);
-                painter->drawText(segmentRect, Qt::AlignCenter, segments[i].text);
-                x += widths[i];
-            }
-
-            painter->setClipping(false);
-            painter->setPen(QPen{ QColor{ 0, 0, 0, 60 } });
-            x = topLeft.x();
-            for (std::size_t i{ 0 }; i + 1 < segments.size(); ++i)
-            {
-                x += widths[i];
-                painter->drawLine(QPoint{ x, topLeft.y() }, QPoint{ x, topLeft.y() + ChipHeight });
-            }
-
-            painter->restore();
-
-            return totalWidth;
-        }
-    } // namespace
-
     GmodTreeItemDelegate::GmodTreeItemDelegate(QObject* parent)
         : QStyledItemDelegate{ parent }
     {}
@@ -149,21 +55,22 @@ namespace qvistools::gui
                                                            : metadata.name() };
 
         QPoint cursor{ option.rect.topLeft() };
-        cursor.setY(cursor.y() + (option.rect.height() - ChipHeight) / 2);
+        cursor.setY(cursor.y() + (option.rect.height() - chip::Height) / 2);
 
-        std::vector<ChipSegment> segments;
+        std::vector<chip::Segment> segments;
         if (skippedParentNode != nullptr)
         {
-            segments.push_back({ detail::toQString(skippedParentNode->code()), codeChipColor(*skippedParentNode) });
+            segments.push_back(
+                { detail::toQString(skippedParentNode->code()), chip::codeChipColor(*skippedParentNode) });
         }
-        segments.push_back({ detail::toQString(node->code()), codeChipColor(*node) });
+        segments.push_back({ detail::toQString(node->code()), chip::codeChipColor(*node) });
         if (productNode != nullptr)
         {
-            segments.push_back({ detail::toQString(productNode->code()), codeChipColor(*productNode) });
+            segments.push_back({ detail::toQString(productNode->code()), chip::codeChipColor(*productNode) });
         }
 
-        const auto groupWidth{ drawChipGroup(painter, cursor, segments) };
-        cursor.setX(cursor.x() + groupWidth + ChipGroupSpacing);
+        const auto groupWidth{ chip::drawChipGroup(painter, cursor, segments) };
+        cursor.setX(cursor.x() + groupWidth + chip::GroupSpacing);
 
         painter->setPen(
             opt.palette.color(opt.state & QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text));
@@ -177,7 +84,7 @@ namespace qvistools::gui
     QSize GmodTreeItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
     {
         auto size{ QStyledItemDelegate::sizeHint(option, index) };
-        size.setHeight(std::max(size.height(), ChipHeight + ChipVerticalMargin));
+        size.setHeight(std::max(size.height(), chip::Height + chip::VerticalMargin));
         return size;
     }
 } // namespace qvistools::gui

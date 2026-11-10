@@ -2,7 +2,7 @@
 
 #include "core/GmodSearchIndex.h"
 #include "gui/SdkQtTypes.h"
-#include "detail/StringUtils.h"
+#include "GmodSearchResultDelegate.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 
@@ -20,6 +20,7 @@ namespace qvistools::gui
     {
         m_lineEdit->setPlaceholderText(tr("Search Gmod nodes..."));
         m_resultsList->setHidden(true);
+        m_resultsList->setItemDelegate(new GmodSearchResultDelegate{ m_resultsList });
 
         setupLayout();
         setupConnections();
@@ -72,10 +73,10 @@ namespace qvistools::gui
 
         for (const auto& match : matches)
         {
-            const auto* node{ match.node };
-            auto* item{ new QListWidgetItem{ detail::toQString(node->code()) + QStringLiteral(" - ") +
-                                             detail::toQString(node->metadata().name()) } };
-            item->setData(Qt::UserRole, QVariant::fromValue(node));
+            auto* item{ new QListWidgetItem };
+            item->setData(GmodSearchResultDelegate::NodeRole, QVariant::fromValue(match.node));
+            item->setData(GmodSearchResultDelegate::ParentRole, QVariant::fromValue(match.parent));
+            item->setData(GmodSearchResultDelegate::SkippedParentRole, QVariant::fromValue(match.skippedParent));
             m_resultsList->addItem(item);
         }
 
@@ -90,7 +91,7 @@ namespace qvistools::gui
             return;
         }
 
-        const auto* node{ item->data(Qt::UserRole).value<const dnv::vista::sdk::GmodNode*>() };
+        const auto* node{ item->data(GmodSearchResultDelegate::NodeRole).value<const dnv::vista::sdk::GmodNode*>() };
         if (node == nullptr)
         {
             return;
