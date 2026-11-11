@@ -5,6 +5,7 @@
 class QComboBox;
 class QEvent;
 class QPushButton;
+class QToolButton;
 class QTreeView;
 
 namespace dnv::vista::sdk
@@ -48,6 +49,7 @@ namespace qvistools::gui
         QPushButton* m_collapseAllButton;
         QComboBox* m_versionCombo;
         GmodSearchBar* m_searchBar;
+        QToolButton* m_legendButton;
 
     signals:
         void gmodChanged(const dnv::vista::sdk::Gmod& gmod);
