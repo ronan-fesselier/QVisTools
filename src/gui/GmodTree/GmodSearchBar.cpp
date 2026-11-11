@@ -6,6 +6,7 @@
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QVBoxLayout>
@@ -22,6 +23,9 @@ namespace qvistools::gui
         m_resultsList->setHidden(true);
         m_resultsList->setItemDelegate(new GmodSearchResultDelegate{ m_resultsList });
 
+        m_lineEdit->installEventFilter(this);
+        m_resultsList->installEventFilter(this);
+
         setupLayout();
         setupConnections();
     }
@@ -34,6 +38,58 @@ namespace qvistools::gui
         m_index.reset();
         m_resultsList->clear();
         m_resultsList->setHidden(true);
+    }
+
+    bool GmodSearchBar::eventFilter(QObject* watched, QEvent* event)
+    {
+        if (event->type() != QEvent::KeyPress)
+        {
+            return QWidget::eventFilter(watched, event);
+        }
+
+        auto* keyEvent{ static_cast<QKeyEvent*>(event) };
+
+        if (watched == m_lineEdit)
+        {
+            if (keyEvent->key() == Qt::Key_Escape && !m_resultsList->isHidden())
+            {
+                closeResults();
+                return true;
+            }
+
+            if (keyEvent->key() == Qt::Key_Down && !m_resultsList->isHidden())
+            {
+                m_resultsList->setFocus();
+                if (m_resultsList->currentItem() == nullptr && m_resultsList->count() > 0)
+                {
+                    m_resultsList->setCurrentRow(0);
+                }
+                return true;
+            }
+
+            if ((keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) && !m_resultsList->isHidden())
+            {
+                activateCurrentItem();
+                return true;
+            }
+        }
+        else if (watched == m_resultsList)
+        {
+            if (keyEvent->key() == Qt::Key_Escape)
+            {
+                closeResults();
+                m_lineEdit->setFocus();
+                return true;
+            }
+
+            if (keyEvent->key() == Qt::Key_Up && m_resultsList->currentRow() == 0)
+            {
+                m_lineEdit->setFocus();
+                return true;
+            }
+        }
+
+        return QWidget::eventFilter(watched, event);
     }
 
     const core::GmodSearchIndex& GmodSearchBar::index()
@@ -59,6 +115,32 @@ namespace qvistools::gui
         QObject::connect(m_resultsList, &QListWidget::itemActivated, this, &GmodSearchBar::onItemActivated);
     }
 
+    void GmodSearchBar::closeResults()
+    {
+        m_resultsList->clear();
+        m_resultsList->setHidden(true);
+        m_lineEdit->clear();
+    }
+
+    void GmodSearchBar::activateCurrentItem()
+    {
+        auto* item{ m_resultsList->currentItem() };
+        if (item == nullptr)
+        {
+            return;
+        }
+
+        const auto* node{ item->data(GmodSearchResultDelegate::NodeRole).value<const dnv::vista::sdk::GmodNode*>() };
+        if (node == nullptr)
+        {
+            return;
+        }
+
+        closeResults();
+
+        emit nodeActivated(*node);
+    }
+
     void GmodSearchBar::onTextChanged(const QString& text)
     {
         m_resultsList->clear();
@@ -81,26 +163,15 @@ namespace qvistools::gui
         }
 
         m_resultsList->setHidden(matches.empty());
+
+        if (!matches.empty())
+        {
+            m_resultsList->setCurrentRow(0);
+        }
     }
 
     void GmodSearchBar::onItemActivated()
     {
-        auto* item{ m_resultsList->currentItem() };
-        if (item == nullptr)
-        {
-            return;
-        }
-
-        const auto* node{ item->data(GmodSearchResultDelegate::NodeRole).value<const dnv::vista::sdk::GmodNode*>() };
-        if (node == nullptr)
-        {
-            return;
-        }
-
-        m_resultsList->clear();
-        m_resultsList->setHidden(true);
-        m_lineEdit->clear();
-
-        emit nodeActivated(*node);
+        activateCurrentItem();
     }
 } // namespace qvistools::gui

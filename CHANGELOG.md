@@ -18,7 +18,7 @@
 - `GmodTreeModel`: lazy `QAbstractItemModel` over the Gmod DAG, naturally sorted, duplicate-safe expand/collapse state for nodes with multiple parents
 - `GmodTreeItemDelegate`: custom `QStyledItemDelegate` rendering node code, product and skipped-parent chips with category/type-based colors
 - `GmodSearchIndex`: Qt-agnostic search index over the Gmod DAG, matching on code/name/commonName/definition
-- `GmodSearchBar`: search box and results list above the tree view
+- `GmodSearchBar`: search box and results list above the tree view, with Escape/arrow/Enter keyboard navigation
 - `GmodSearchResultDelegate`: renders search results with the same ancestor-path chip style as the tree
 - `GmodChipRenderer`: shared chip-drawing logic
 - `GmodPathUtils`: `ancestorPath()` / `shortAncestorPath()` helpers for walking a node's ancestor chain

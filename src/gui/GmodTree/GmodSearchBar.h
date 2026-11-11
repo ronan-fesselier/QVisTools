@@ -30,9 +30,15 @@ namespace qvistools::gui
 
         void setGmod(const dnv::vista::sdk::Gmod& gmod);
 
+    protected:
+        virtual bool eventFilter(QObject* watched, QEvent* event) override;
+
     private:
         void setupLayout();
         void setupConnections();
+
+        void closeResults();
+        void activateCurrentItem();
 
         void onTextChanged(const QString& text);
         void onItemActivated();
