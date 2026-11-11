@@ -4,6 +4,9 @@
 
 ### Added
 
+- GitHub Actions `Build` workflow: Linux (GCC, Clang) and Windows (MSVC) matrix build with strict warnings
+- GitHub Actions `CodeQL` workflow: C/C++ static analysis
+
 - `Qt6 Widgets` dependency
 
 - `VIS` singleton initialized at startup

@@ -41,6 +41,14 @@ set_target_properties(${PROJECT_NAME}
         DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
 )
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+            BUILD_RPATH   "$ORIGIN"
+            INSTALL_RPATH "$ORIGIN"
+    )
+endif()
+
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Qt6::Svg

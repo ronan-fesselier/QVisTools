@@ -1,0 +1,160 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main", "ci/**", "feat/**", "test/**", "fix/**" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  QT_VERSION: "6.5.*"
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }}, ${{ matrix.toolchain }})
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            toolchain: gcc
+          - os: ubuntu-24.04
+            toolchain: clang
+
+          - os: windows-2022
+            toolchain: msvc
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          cache: true
+
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v6
+        with:
+          path: build/_deps
+          key: ${{ runner.os }}-fetchcontent-${{ hashFiles('cmake/QVisToolsDependencies.cmake') }}
+
+      # Linux deps
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+
+      - name: Install GCC (Linux)
+        if: runner.os == 'Linux' && matrix.toolchain == 'gcc'
+        run: |
+          sudo apt-get install -y g++
+
+      - name: Install Clang (Linux)
+        if: runner.os == 'Linux' && matrix.toolchain == 'clang'
+        run: |
+          sudo apt-get install -y clang
+
+      # Linux (GCC/Clang)
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
+        env:
+          CC: ${{ matrix.toolchain }}
+          CXX: ${{ matrix.toolchain == 'gcc' && 'g++' || 'clang++' }}
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DQVIS_TOOLS_WARNINGS=ON \
+            -DQVIS_TOOLS_WARNINGS_AS_ERRORS=ON
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: cmake --build build --parallel
+
+      - name: Stage artifact (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p dist
+          cp build/bin/QVisTools dist/
+          find build -name "libdnv-vista-sdk*.so*" -exec cp {} dist/ \;
+
+      - name: Upload artifact (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: QVisTools-linux-${{ matrix.toolchain }}
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+      # Windows MSVC
+      - name: Configure (Windows MSVC)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: >
+          cmake -B build
+          -G "Visual Studio 17 2022" -A x64
+          -DQVIS_TOOLS_WARNINGS=ON
+          -DQVIS_TOOLS_WARNINGS_AS_ERRORS=ON
+
+      - name: Build (Windows MSVC)
+        if: runner.os == 'Windows'
+        run: cmake --build build --config Release --parallel
+
+      - name: Stage artifact (Windows MSVC)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item build/bin/Release/QVisTools.exe dist/
+
+      - name: Stage dnv-vista-sdk runtime (Windows MSVC)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Path build -Filter "dnv-vista-sdk*.dll" |
+            Where-Object { $_.FullName -like "*Release*" } |
+            Copy-Item -Destination dist/
+
+      - name: Deploy Qt runtime (Windows MSVC)
+        if: runner.os == 'Windows'
+        run: >
+          windeployqt --release
+          --no-translations
+          --no-network
+          --no-opengl-sw
+          --no-system-d3d-compiler
+          --no-quick-import
+          dist/QVisTools.exe
+
+      - name: Prune unused Qt plugins (Windows MSVC)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue dist/generic
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue dist/networkinformation
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue dist/tls
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue dist/translations
+          Remove-Item -Force -ErrorAction SilentlyContinue dist/D3Dcompiler_47.dll
+          Remove-Item -Force -ErrorAction SilentlyContinue dist/opengl32sw.dll
+
+      - name: Upload artifact (Windows MSVC)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: QVisTools-windows-${{ matrix.toolchain }}
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
