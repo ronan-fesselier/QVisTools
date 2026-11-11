@@ -9,7 +9,7 @@ namespace dnv::vista::sdk
 
 namespace qvistools::gui
 {
-    class GmodTreeView;
+    class GmodExplorerWidget;
 
     class MainWindow final : public QMainWindow
     {
@@ -23,6 +23,6 @@ namespace qvistools::gui
         void setupFileMenu();
         void setupHelpMenu();
 
-        GmodTreeView* m_treeView;
+        GmodExplorerWidget* m_explorerWidget;
     };
 } // namespace qvistools::gui

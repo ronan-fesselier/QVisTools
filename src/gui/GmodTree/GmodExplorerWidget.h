@@ -17,12 +17,12 @@ namespace qvistools::gui
     class GmodSearchBar;
     class GmodTreeWidget;
 
-    class GmodTreeView final : public QWidget
+    class GmodExplorerWidget final : public QWidget
     {
         Q_OBJECT
 
     public:
-        explicit GmodTreeView(const dnv::vista::sdk::Gmod& gmod, QWidget* parent = nullptr);
+        explicit GmodExplorerWidget(const dnv::vista::sdk::Gmod& gmod, QWidget* parent = nullptr);
 
     private:
         void setupVersionCombo(const dnv::vista::sdk::Gmod& gmod);

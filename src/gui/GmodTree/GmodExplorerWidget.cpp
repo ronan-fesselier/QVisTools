@@ -1,4 +1,4 @@
-#include "GmodTreeView.h"
+#include "GmodExplorerWidget.h"
 
 #include "detail/StringUtils.h"
 #include "GmodChipRenderer.h"
@@ -17,7 +17,7 @@
 
 namespace qvistools::gui
 {
-    GmodTreeView::GmodTreeView(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
+    GmodExplorerWidget::GmodExplorerWidget(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
         : QWidget{ parent },
           m_gmod{ &gmod },
           m_treeWidget{ new GmodTreeWidget{ gmod, this } },
@@ -40,7 +40,7 @@ namespace qvistools::gui
         setupConnections();
     }
 
-    void GmodTreeView::setupVersionCombo(const dnv::vista::sdk::Gmod& gmod)
+    void GmodExplorerWidget::setupVersionCombo(const dnv::vista::sdk::Gmod& gmod)
     {
         const auto& vis{ dnv::vista::sdk::VIS::instance() };
         for (const auto version : vis.versions())
@@ -52,7 +52,7 @@ namespace qvistools::gui
             m_versionCombo->findData(QVariant::fromValue(static_cast<int>(gmod.version()))));
     }
 
-    void GmodTreeView::setupLayout()
+    void GmodExplorerWidget::setupLayout()
     {
         auto* hLayout{ new QHBoxLayout };
         hLayout->addWidget(m_searchBar);
@@ -65,17 +65,20 @@ namespace qvistools::gui
         layout->addWidget(m_treeWidget);
     }
 
-    void GmodTreeView::setupConnections()
+    void GmodExplorerWidget::setupConnections()
     {
         QObject::connect(m_collapseAllButton, &QPushButton::clicked, m_treeWidget, &GmodTreeWidget::collapseAll);
 
         QObject::connect(
-            m_versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &GmodTreeView::onVersionChanged);
+            m_versionCombo,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &GmodExplorerWidget::onVersionChanged);
 
         QObject::connect(m_searchBar, &GmodSearchBar::nodeActivated, m_treeWidget, &GmodTreeWidget::navigateTo);
     }
 
-    void GmodTreeView::onVersionChanged(int index)
+    void GmodExplorerWidget::onVersionChanged(int index)
     {
         if (index < 0)
         {

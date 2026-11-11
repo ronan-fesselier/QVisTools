@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 
 #include "detail/StringUtils.h"
-#include "gui/GmodTree/GmodTreeView.h"
+#include "gui/GmodTree/GmodExplorerWidget.h"
 
 #include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/Version.h>
@@ -20,13 +20,13 @@ namespace qvistools::gui
 {
     MainWindow::MainWindow(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
         : QMainWindow{ parent },
-          m_treeView{ new GmodTreeView{ gmod, this } }
+          m_explorerWidget{ new GmodExplorerWidget{ gmod, this } }
     {
         setupStatusBar(gmod);
         setupFileMenu();
         setupHelpMenu();
 
-        setCentralWidget(m_treeView);
+        setCentralWidget(m_explorerWidget);
     }
 
     void MainWindow::setupStatusBar(const dnv::vista::sdk::Gmod& gmod)
@@ -49,7 +49,7 @@ namespace qvistools::gui
             versionLabel->setText(tr("Gmod %1 (%2 nodes)").arg(detail::toQString(version)).arg(nodeCount));
         } };
         updateVersionLabel(gmod);
-        QObject::connect(m_treeView, &GmodTreeView::gmodChanged, this, updateVersionLabel);
+        QObject::connect(m_explorerWidget, &GmodExplorerWidget::gmodChanged, this, updateVersionLabel);
     }
 
     void MainWindow::setupFileMenu()
