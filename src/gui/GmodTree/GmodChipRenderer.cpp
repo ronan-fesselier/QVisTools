@@ -19,35 +19,106 @@ namespace qvistools::gui::chip
         }
     } // namespace
 
-    QColor codeChipColor(const dnv::vista::sdk::GmodNode& node)
+    Category categoryOf(const dnv::vista::sdk::GmodNode& node)
     {
         if (node.isRoot())
         {
-            return QColor{ "#004d00" };
+            return Category::Root;
         }
         if (node.isLeafNode())
         {
-            return node.isAssetFunctionNode() ? QColor{ "#00ff00" } : QColor{ "#ccffcc" };
+            return node.isAssetFunctionNode() ? Category::LeafAssetFunction : Category::Leaf;
         }
         if (node.isProductType())
         {
-            return QColor{ "#ff0000" };
+            return Category::ProductType;
         }
         if (node.isFunctionComposition())
         {
-            return QColor{ "#99cc00" };
+            return Category::FunctionComposition;
         }
-
         if (node.metadata().type() == "GROUP")
         {
-            return QColor{ "#008000" };
+            const auto cat = node.metadata().category();
+            if (cat == "ASSET FUNCTION")
+            {
+                return Category::AssetFunctionGroup;
+            }
+            if (cat == "PRODUCT FUNCTION")
+            {
+                return Category::ProductFunctionGroup;
+            }
+            return Category::Unhandled;
         }
         if (node.metadata().type() == "SELECTION")
         {
-            return QColor{ "#ff9100" };
+            const auto cat = node.metadata().category();
+            if (cat == "ASSET FUNCTION" || cat == "PRODUCT FUNCTION")
+            {
+                return Category::FunctionSelection;
+            }
+            if (cat == "PRODUCT")
+            {
+                return Category::ProductSelection;
+            }
+            return Category::Unhandled;
         }
 
+        return Category::Unhandled;
+    }
+
+    QColor categoryColor(Category category)
+    {
+        switch (category)
+        {
+            case Category::Root:
+                return QColor{ "#004d00" };
+            case Category::LeafAssetFunction:
+                return QColor{ "#00ff00" };
+            case Category::Leaf:
+                return QColor{ "#ccffcc" };
+            case Category::ProductType:
+                return QColor{ "#ff0000" };
+            case Category::FunctionComposition:
+                return QColor{ "#99cc00" };
+            case Category::AssetFunctionGroup:
+            case Category::ProductFunctionGroup:
+                return QColor{ "#008000" };
+            case Category::FunctionSelection:
+            case Category::ProductSelection:
+                return QColor{ "#ff9100" };
+            case Category::Unhandled:
+                break;
+        }
         return QColor{ "#9b59b6" }; // Unhandled node category (visible marker)
+    }
+
+    QString categoryName(Category category)
+    {
+        switch (category)
+        {
+            case Category::Root:
+                return QStringLiteral("Root");
+            case Category::LeafAssetFunction:
+                return QStringLiteral("Leaf - asset function");
+            case Category::Leaf:
+                return QStringLiteral("Leaf");
+            case Category::ProductType:
+                return QStringLiteral("Product type");
+            case Category::FunctionComposition:
+                return QStringLiteral("Function composition");
+            case Category::AssetFunctionGroup:
+                return QStringLiteral("Asset function group");
+            case Category::ProductFunctionGroup:
+                return QStringLiteral("Product function group");
+            case Category::FunctionSelection:
+                return QStringLiteral("Function selection");
+            case Category::ProductSelection:
+                return QStringLiteral("Product selection");
+            case Category::Unhandled:
+                break;
+        }
+        return QStringLiteral("Unhandled category");
     }
 
     int segmentWidth(const QFontMetrics& metrics, const Segment& segment)
@@ -100,5 +171,27 @@ namespace qvistools::gui::chip
         painter->restore();
 
         return totalWidth;
+    }
+
+    std::optional<std::size_t> hitTest(
+        const QFontMetrics& metrics, QPoint topLeft, const std::vector<Segment>& segments, QPoint point)
+    {
+        if (point.y() < topLeft.y() || point.y() >= topLeft.y() + Height)
+        {
+            return std::nullopt;
+        }
+
+        int x{ topLeft.x() };
+        for (std::size_t i{ 0 }; i < segments.size(); ++i)
+        {
+            const int width{ segmentWidth(metrics, segments[i]) };
+            if (point.x() >= x && point.x() < x + width)
+            {
+                return i;
+            }
+            x += width;
+        }
+
+        return std::nullopt;
     }
 } // namespace qvistools::gui::chip
