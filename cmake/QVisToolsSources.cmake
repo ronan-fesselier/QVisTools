@@ -11,6 +11,7 @@ list(APPEND QVIS_TOOLS_SOURCES
 
     ${QVIS_TOOLS_SOURCE_DIR}/gui/GmodTree/GmodChipRenderer.cpp
     ${QVIS_TOOLS_SOURCE_DIR}/gui/GmodTree/GmodExplorerWidget.cpp
+    ${QVIS_TOOLS_SOURCE_DIR}/gui/GmodTree/GmodNodeDetailWidget.cpp
     ${QVIS_TOOLS_SOURCE_DIR}/gui/GmodTree/GmodSearchBar.cpp
     ${QVIS_TOOLS_SOURCE_DIR}/gui/GmodTree/GmodSearchResultDelegate.cpp
     ${QVIS_TOOLS_SOURCE_DIR}/gui/GmodTree/GmodTreeItemDelegate.cpp
