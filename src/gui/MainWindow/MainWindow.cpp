@@ -2,7 +2,6 @@
 
 #include "detail/StringUtils.h"
 #include "gui/GmodTree/GmodTreeView.h"
-#include "qvistools/Version.h"
 
 #include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/Version.h>
@@ -87,13 +86,14 @@ namespace qvistools::gui
             infoLabel->setText(
                 tr("<table cellspacing=\"6\" cellpadding=\"2\">"
                    "<tr><td align=\"right\">Version:</td><td><b>%1</b></td><td>&nbsp;(MIT)</td></tr>"
-                   "<tr><td align=\"right\"><a href=\"https://github.com/ronan-fesselier/vista-sdk\">DNV Vista "
-                   "SDK</a>:</td><td><b>%2</b></td><td>&nbsp;(MIT)</td></tr>"
+                   "<tr><td align=\"right\"><a "
+                   "href=\"https://github.com/ronan-fesselier/vista-sdk/tree/feature/cpp/cpp\">DNV Vista "
+                   "SDK C++</a>:</td><td><b>%2</b></td><td>&nbsp;(MIT)</td></tr>"
                    "<tr><td align=\"right\"><a href=\"https://www.qt.io\">Qt</a>:</td><td><b>%3</b></td>"
                    "<td>&nbsp;(LGPLv3)</td></tr>"
                    "</table>")
                     .arg(
-                        detail::toQString(version()),
+                        QApplication::applicationVersion(),
                         detail::toQString(dnv::vista::sdk::version()),
                         detail::toQString(qVersion())));
 
