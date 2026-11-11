@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QColor>
+#include <QFontMetrics>
 #include <QPoint>
 #include <QString>
 
@@ -26,6 +27,8 @@ namespace qvistools::gui::chip
     };
 
     [[nodiscard]] QColor codeChipColor(const dnv::vista::sdk::GmodNode& node);
+
+    [[nodiscard]] int segmentWidth(const QFontMetrics& metrics, const Segment& segment);
 
     int drawChipGroup(QPainter* painter, QPoint topLeft, const std::vector<Segment>& segments);
 } // namespace qvistools::gui::chip
