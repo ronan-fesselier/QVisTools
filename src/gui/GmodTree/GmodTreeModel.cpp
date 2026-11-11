@@ -182,6 +182,18 @@ namespace qvistools::gui
             {
                 return QStringLiteral("%1 - %2").arg(detail::toQString(code), detail::toQString(name));
             }
+            case Qt::ToolTipRole:
+            {
+                if (const auto& commonDef = metadata.commonDefinition(); commonDef.has_value())
+                {
+                    return detail::toQString(*commonDef);
+                }
+                if (const auto& def = metadata.definition(); def.has_value())
+                {
+                    return detail::toQString(*def);
+                }
+                return {};
+            }
             case NodeRole:
                 return QVariant::fromValue(node);
             case MappableRole:

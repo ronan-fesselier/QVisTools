@@ -2,7 +2,6 @@
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 
-#include <QFontMetrics>
 #include <QPainter>
 #include <QPainterPath>
 
@@ -51,6 +50,11 @@ namespace qvistools::gui::chip
         return QColor{ "#9b59b6" }; // Unhandled node category (visible marker)
     }
 
+    int segmentWidth(const QFontMetrics& metrics, const Segment& segment)
+    {
+        return metrics.horizontalAdvance(segment.text) + 2 * PaddingH;
+    }
+
     int drawChipGroup(QPainter* painter, QPoint topLeft, const std::vector<Segment>& segments)
     {
         const QFontMetrics metrics{ painter->fontMetrics() };
@@ -60,7 +64,7 @@ namespace qvistools::gui::chip
         int totalWidth{ 0 };
         for (const auto& segment : segments)
         {
-            const int width{ metrics.horizontalAdvance(segment.text) + 2 * PaddingH };
+            const int width{ segmentWidth(metrics, segment) };
             widths.push_back(width);
             totalWidth += width;
         }
