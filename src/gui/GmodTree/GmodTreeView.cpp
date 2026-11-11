@@ -3,19 +3,16 @@
 #include "detail/StringUtils.h"
 #include "GmodChipRenderer.h"
 #include "GmodSearchBar.h"
-#include "GmodTreeItemDelegate.h"
-#include "GmodTreeModel.h"
+#include "GmodTreeWidget.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
 #include <QComboBox>
-#include <QEvent>
+#include <QHBoxLayout>
 #include <QIcon>
-#include <QKeyEvent>
 #include <QPushButton>
 #include <QToolButton>
-#include <QTreeView>
 #include <QVBoxLayout>
 
 namespace qvistools::gui
@@ -23,8 +20,7 @@ namespace qvistools::gui
     GmodTreeView::GmodTreeView(const dnv::vista::sdk::Gmod& gmod, QWidget* parent)
         : QWidget{ parent },
           m_gmod{ &gmod },
-          m_model{ new GmodTreeModel{ *m_gmod, this } },
-          m_treeView{ new QTreeView{ this } },
+          m_treeWidget{ new GmodTreeWidget{ gmod, this } },
           m_collapseAllButton{ new QPushButton{ QIcon{ ":/icons/collapse-all.svg" }, QString{}, this } },
           m_versionCombo{ new QComboBox{ this } },
           m_searchBar{ new GmodSearchBar{ gmod, this } },
@@ -38,21 +34,10 @@ namespace qvistools::gui
         m_legendButton->setFocusPolicy(Qt::NoFocus);
         m_legendButton->setToolTip(chip::legendHtml());
 
-        setupTreeView();
         setupVersionCombo(gmod);
         setupLayout();
 
         setupConnections();
-
-        expandRoot();
-    }
-
-    void GmodTreeView::setupTreeView()
-    {
-        m_treeView->setModel(m_model);
-        m_treeView->setHeaderHidden(true);
-        m_treeView->installEventFilter(this);
-        m_treeView->setItemDelegate(new GmodTreeItemDelegate{ m_treeView });
     }
 
     void GmodTreeView::setupVersionCombo(const dnv::vista::sdk::Gmod& gmod)
@@ -77,45 +62,17 @@ namespace qvistools::gui
 
         auto* layout{ new QVBoxLayout{ this } };
         layout->addLayout(hLayout);
-        layout->addWidget(m_treeView);
+        layout->addWidget(m_treeWidget);
     }
 
     void GmodTreeView::setupConnections()
     {
-        QObject::connect(m_collapseAllButton, &QPushButton::clicked, this, &GmodTreeView::collapseAll);
+        QObject::connect(m_collapseAllButton, &QPushButton::clicked, m_treeWidget, &GmodTreeWidget::collapseAll);
 
         QObject::connect(
             m_versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &GmodTreeView::onVersionChanged);
-        QObject::connect(m_treeView, &QTreeView::collapsed, this, &GmodTreeView::onRootCollapsed);
 
-        QObject::connect(m_searchBar, &GmodSearchBar::nodeActivated, this, &GmodTreeView::onSearchNodeActivated);
-    }
-
-    void GmodTreeView::expandRoot()
-    {
-        m_treeView->setExpanded(m_model->index(0, 0), true);
-    }
-
-    void GmodTreeView::collapseAll()
-    {
-        m_treeView->collapseAll();
-        expandRoot();
-    }
-
-    bool GmodTreeView::eventFilter(QObject* watched, QEvent* event)
-    {
-        if (watched == m_treeView && event->type() == QEvent::KeyPress)
-        {
-            auto* keyEvent{ static_cast<QKeyEvent*>(event) };
-
-            if (keyEvent->key() == Qt::Key_Asterisk)
-            {
-                // Block QTreeView's default expand-all shortcut: the Gmod DAG is too large to expand fully.
-                return true;
-            }
-        }
-
-        return QWidget::eventFilter(watched, event);
+        QObject::connect(m_searchBar, &GmodSearchBar::nodeActivated, m_treeWidget, &GmodTreeWidget::navigateTo);
     }
 
     void GmodTreeView::onVersionChanged(int index)
@@ -130,43 +87,9 @@ namespace qvistools::gui
         const auto& vis{ dnv::vista::sdk::VIS::instance() };
         m_gmod = &vis.gmod(version);
 
-        auto* newModel{ new GmodTreeModel{ *m_gmod, this } };
-        m_treeView->setModel(newModel);
-        m_treeView->collapseAll();
-
-        m_model->deleteLater();
-        m_model = newModel;
-
-        expandRoot();
-
+        m_treeWidget->setGmod(*m_gmod);
         m_searchBar->setGmod(*m_gmod);
 
         emit gmodChanged(*m_gmod);
-    }
-
-    void GmodTreeView::onRootCollapsed(const QModelIndex& index)
-    {
-        if (!index.parent().isValid())
-        {
-            m_treeView->setExpanded(index, true);
-        }
-    }
-
-    void GmodTreeView::onSearchNodeActivated(const dnv::vista::sdk::GmodNode& node)
-    {
-        const auto index{ m_model->indexForNode(node) };
-        if (!index.isValid())
-        {
-            return;
-        }
-
-        for (auto ancestor{ index.parent() }; ancestor.isValid(); ancestor = ancestor.parent())
-        {
-            m_treeView->setExpanded(ancestor, true);
-        }
-
-        m_treeView->setCurrentIndex(index);
-        m_treeView->scrollTo(index, QAbstractItemView::PositionAtCenter);
-        m_treeView->setFocus();
     }
 } // namespace qvistools::gui
