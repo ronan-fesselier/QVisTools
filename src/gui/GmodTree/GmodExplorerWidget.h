@@ -4,6 +4,7 @@
 
 class QComboBox;
 class QPushButton;
+class QSplitter;
 class QToolButton;
 
 namespace dnv::vista::sdk
@@ -14,6 +15,7 @@ namespace dnv::vista::sdk
 
 namespace qvistools::gui
 {
+    class GmodNodeDetailWidget;
     class GmodSearchBar;
     class GmodTreeWidget;
 
@@ -34,10 +36,12 @@ namespace qvistools::gui
         const dnv::vista::sdk::Gmod* m_gmod;
 
         GmodTreeWidget* m_treeWidget;
+        GmodNodeDetailWidget* m_detailWidget;
         QPushButton* m_collapseAllButton;
         QComboBox* m_versionCombo;
         GmodSearchBar* m_searchBar;
         QToolButton* m_legendButton;
+        QSplitter* m_splitter;
 
     signals:
         void gmodChanged(const dnv::vista::sdk::Gmod& gmod);
