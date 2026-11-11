@@ -77,6 +77,8 @@ namespace qvistools::gui
         QObject::connect(
             m_versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &GmodTreeView::onVersionChanged);
         QObject::connect(m_treeView, &QTreeView::collapsed, this, &GmodTreeView::onRootCollapsed);
+
+        QObject::connect(m_searchBar, &GmodSearchBar::nodeActivated, this, &GmodTreeView::onSearchNodeActivated);
     }
 
     void GmodTreeView::expandRoot()
@@ -138,5 +140,23 @@ namespace qvistools::gui
         {
             m_treeView->setExpanded(index, true);
         }
+    }
+
+    void GmodTreeView::onSearchNodeActivated(const dnv::vista::sdk::GmodNode& node)
+    {
+        const auto index{ m_model->indexForNode(node) };
+        if (!index.isValid())
+        {
+            return;
+        }
+
+        for (auto ancestor{ index.parent() }; ancestor.isValid(); ancestor = ancestor.parent())
+        {
+            m_treeView->setExpanded(ancestor, true);
+        }
+
+        m_treeView->setCurrentIndex(index);
+        m_treeView->scrollTo(index, QAbstractItemView::PositionAtCenter);
+        m_treeView->setFocus();
     }
 } // namespace qvistools::gui

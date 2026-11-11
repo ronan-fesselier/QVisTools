@@ -1,18 +1,93 @@
 #include "GmodTreeModel.h"
 
+#include "core/GmodPathUtils.h"
 #include "detail/StringUtils.h"
 
 #include <dnv/vista/sdk/core/Gmod.h>
+#include <dnv/vista/sdk/core/GmodNode.h>
 
 #include <algorithm>
 #include <cctype>
 
 namespace qvistools::gui
 {
+    namespace
+    {
+        bool isTransparentSubstitution(const dnv::vista::sdk::GmodNode& node, const dnv::vista::sdk::GmodNode& from)
+        {
+            if (const auto productType{ from.productType() }; productType.has_value() && *productType == &node)
+            {
+                return true;
+            }
+            if (const auto productSelection{ from.productSelection() };
+                productSelection.has_value() && *productSelection == &node)
+            {
+                return true;
+            }
+            return false;
+        }
+    } // namespace
+
     GmodTreeModel::GmodTreeModel(const dnv::vista::sdk::Gmod& gmod, QObject* parent)
         : QAbstractItemModel{ parent },
           m_rootNode{ &gmod.rootNode() }
     {}
+
+    QModelIndex GmodTreeModel::indexForNode(const dnv::vista::sdk::GmodNode& node) const
+    {
+        const auto path{ core::ancestorPath(node) };
+
+        QModelIndex current{};
+        const dnv::vista::sdk::GmodNode* currentNode{ m_rootNode };
+        std::size_t pathPos{ 0 };
+
+        while (pathPos < path.size())
+        {
+            while (isTransparentSubstitution(*path[pathPos], *currentNode))
+            {
+                currentNode = path[pathPos];
+                ++pathPos;
+                if (pathPos >= path.size())
+                {
+                    return current;
+                }
+            }
+
+            if (path[pathPos] == currentNode)
+            {
+                if (!current.isValid())
+                {
+                    current = index(0, 0, current); // Step onto VE itself.
+                }
+                ++pathPos;
+                continue;
+            }
+
+            const int rows{ rowCount(current) };
+            bool advanced{ false };
+
+            for (int row{ 0 }; row < rows; ++row)
+            {
+                const auto childIndex{ index(row, 0, current) };
+                const auto* handle{ static_cast<NodeHandle*>(childIndex.internalPointer()) };
+
+                if (handle->node == path[pathPos])
+                {
+                    current = childIndex;
+                    currentNode = handle->node;
+                    advanced = true;
+                    break;
+                }
+            }
+
+            if (!advanced)
+            {
+                return {};
+            }
+        }
+
+        return current;
+    }
 
     QModelIndex GmodTreeModel::index(int row, int column, const QModelIndex& parent) const
     {

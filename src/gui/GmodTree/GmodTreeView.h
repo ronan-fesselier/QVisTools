@@ -39,6 +39,7 @@ namespace qvistools::gui
 
         void onVersionChanged(int index);
         void onRootCollapsed(const QModelIndex& index);
+        void onSearchNodeActivated(const dnv::vista::sdk::GmodNode& node);
 
         const dnv::vista::sdk::Gmod* m_gmod;
 

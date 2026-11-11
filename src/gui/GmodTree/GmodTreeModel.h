@@ -31,6 +31,8 @@ namespace qvistools::gui
 
         explicit GmodTreeModel(const dnv::vista::sdk::Gmod& gmod, QObject* parent = nullptr);
 
+        [[nodiscard]] QModelIndex indexForNode(const dnv::vista::sdk::GmodNode& node) const;
+
         virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
         virtual QModelIndex parent(const QModelIndex& index) const override;
         virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;

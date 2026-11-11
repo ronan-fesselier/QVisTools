@@ -22,6 +22,7 @@
 - `GmodSearchResultDelegate`: renders search results with the same ancestor-path chip style as the tree
 - `GmodChipRenderer`: shared chip-drawing logic
 - `GmodPathUtils`: `ancestorPath()` / `shortAncestorPath()` helpers for walking a node's ancestor chain
+- `GmodTreeModel::indexForNode()`: locates a `GmodNode`'s model index by walking its ancestor chain, used to expand and select a search result in the tree
 
 ### Changed
 
