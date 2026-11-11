@@ -28,6 +28,7 @@ namespace qvistools::gui
           m_searchBar{ new GmodSearchBar{ gmod, this } }
     {
         m_collapseAllButton->setToolTip(tr("Collapse all"));
+        m_versionCombo->setToolTip(tr("VIS version - Gmod structures differ between versions"));
 
         setupTreeView();
         setupVersionCombo(gmod);

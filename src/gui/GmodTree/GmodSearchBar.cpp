@@ -1,6 +1,7 @@
 #include "GmodSearchBar.h"
 
 #include "core/GmodSearchIndex.h"
+#include "detail/StringUtils.h"
 #include "gui/SdkQtTypes.h"
 #include "GmodSearchResultDelegate.h"
 
@@ -20,6 +21,9 @@ namespace qvistools::gui
           m_resultsList{ new QListWidget{ this } }
     {
         m_lineEdit->setPlaceholderText(tr("Search Gmod nodes..."));
+        m_lineEdit->setToolTip(
+            tr("Search by code, name, common name, or definition.\n"
+               "Down / Up navigate - Enter jumps to the node - Esc closes"));
         m_resultsList->setHidden(true);
         m_resultsList->setItemDelegate(new GmodSearchResultDelegate{ m_resultsList });
 
@@ -159,6 +163,18 @@ namespace qvistools::gui
             item->setData(GmodSearchResultDelegate::NodeRole, QVariant::fromValue(match.node));
             item->setData(GmodSearchResultDelegate::ParentRole, QVariant::fromValue(match.parent));
             item->setData(GmodSearchResultDelegate::SkippedParentRole, QVariant::fromValue(match.skippedParent));
+
+            const auto* namedNode{ match.skippedParent != nullptr ? match.parent : match.node };
+            const auto& metadata{ namedNode->metadata() };
+            if (metadata.commonDefinition().has_value())
+            {
+                item->setToolTip(detail::toQString(*metadata.commonDefinition()));
+            }
+            else if (metadata.definition().has_value())
+            {
+                item->setToolTip(detail::toQString(*metadata.definition()));
+            }
+
             m_resultsList->addItem(item);
         }
 

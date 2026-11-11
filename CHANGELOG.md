@@ -23,7 +23,7 @@
 - `GmodSearchIndex`: Qt-agnostic search index over the Gmod DAG, matching on code/name/commonName/definition
 - `GmodSearchBar`: search box and results list above the tree view, with Escape/arrow/Enter keyboard navigation
 - `GmodSearchResultDelegate`: renders search results with the same ancestor-path chip style as the tree
-- `GmodChipRenderer`: shared chip-drawing logic
+- `GmodChipRenderer`: shared chip-drawing logic. `Category` enum (mirroring DNV's Gmod principles: function group/selection, product type/selection) with `categoryOf()`/`categoryColor()`/`categoryName()`
 - `GmodPathUtils`: `ancestorPath()` / `shortAncestorPath()` helpers for walking a node's ancestor chain
 - `GmodTreeModel::indexForNode()`: locates a `GmodNode`'s model index by walking its ancestor chain, used to expand and select a search result in the tree
 
