@@ -46,6 +46,8 @@ namespace qvistools::gui::chip
     [[nodiscard]] QColor categoryColor(Category category);
     [[nodiscard]] QString categoryName(Category category);
 
+    [[nodiscard]] QString legendHtml();
+
     [[nodiscard]] int segmentWidth(const QFontMetrics& metrics, const Segment& segment);
 
     int drawChipGroup(QPainter* painter, QPoint topLeft, const std::vector<Segment>& segments);
