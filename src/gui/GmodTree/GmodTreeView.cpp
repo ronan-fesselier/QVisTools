@@ -1,6 +1,7 @@
 #include "GmodTreeView.h"
 
 #include "detail/StringUtils.h"
+#include "GmodChipRenderer.h"
 #include "GmodSearchBar.h"
 #include "GmodTreeItemDelegate.h"
 #include "GmodTreeModel.h"
@@ -13,6 +14,7 @@
 #include <QIcon>
 #include <QKeyEvent>
 #include <QPushButton>
+#include <QToolButton>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -25,10 +27,16 @@ namespace qvistools::gui
           m_treeView{ new QTreeView{ this } },
           m_collapseAllButton{ new QPushButton{ QIcon{ ":/icons/collapse-all.svg" }, QString{}, this } },
           m_versionCombo{ new QComboBox{ this } },
-          m_searchBar{ new GmodSearchBar{ gmod, this } }
+          m_searchBar{ new GmodSearchBar{ gmod, this } },
+          m_legendButton{ new QToolButton{ this } }
     {
         m_collapseAllButton->setToolTip(tr("Collapse all"));
         m_versionCombo->setToolTip(tr("VIS version - Gmod structures differ between versions"));
+
+        m_legendButton->setText(QStringLiteral("?"));
+        m_legendButton->setAutoRaise(true);
+        m_legendButton->setFocusPolicy(Qt::NoFocus);
+        m_legendButton->setToolTip(chip::legendHtml());
 
         setupTreeView();
         setupVersionCombo(gmod);
@@ -65,6 +73,7 @@ namespace qvistools::gui
         hLayout->addWidget(m_searchBar);
         hLayout->addWidget(m_collapseAllButton, 0, Qt::AlignTop);
         hLayout->addWidget(m_versionCombo, 0, Qt::AlignTop);
+        hLayout->addWidget(m_legendButton, 0, Qt::AlignTop);
 
         auto* layout{ new QVBoxLayout{ this } };
         layout->addLayout(hLayout);

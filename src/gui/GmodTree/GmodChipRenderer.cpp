@@ -4,6 +4,9 @@
 
 #include <QPainter>
 #include <QPainterPath>
+#include <QStringList>
+
+#include <array>
 
 namespace qvistools::gui::chip
 {
@@ -119,6 +122,46 @@ namespace qvistools::gui::chip
                 break;
         }
         return QStringLiteral("Unhandled category");
+    }
+
+    QString legendHtml()
+    {
+        static constexpr std::array<Category, 10> categories{ Category::Root,
+                                                              Category::AssetFunctionGroup,
+                                                              Category::ProductFunctionGroup,
+                                                              Category::LeafAssetFunction,
+                                                              Category::Leaf,
+                                                              Category::FunctionComposition,
+                                                              Category::FunctionSelection,
+                                                              Category::ProductSelection,
+                                                              Category::ProductType,
+                                                              Category::Unhandled };
+
+        QString html{ QStringLiteral("<table cellpadding='2' cellspacing='0'>") };
+
+        for (std::size_t i{ 0 }; i < categories.size();)
+        {
+            const auto color{ categoryColor(categories[i]) };
+
+            QStringList names{ categoryName(categories[i]) };
+            std::size_t j{ i + 1 };
+            while (j < categories.size() && categoryColor(categories[j]) == color)
+            {
+                names << categoryName(categories[j]);
+                ++j;
+            }
+
+            html += QStringLiteral(
+                        "<tr>"
+                        "<td><span style='background:%1'>&nbsp;&nbsp;&nbsp;</span></td>"
+                        "<td>&nbsp;%2</td>"
+                        "</tr>")
+                        .arg(color.name(), names.join(QStringLiteral(" / ")));
+
+            i = j;
+        }
+
+        return html + QStringLiteral("</table>");
     }
 
     int segmentWidth(const QFontMetrics& metrics, const Segment& segment)
