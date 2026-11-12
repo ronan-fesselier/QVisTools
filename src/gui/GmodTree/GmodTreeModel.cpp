@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <stdexcept>
 
 namespace qvistools::gui
 {
@@ -87,6 +88,27 @@ namespace qvistools::gui
         }
 
         return current;
+    }
+
+    std::optional<dnv::vista::sdk::GmodPath> GmodTreeModel::pathForNode(const dnv::vista::sdk::GmodNode& node) const
+    {
+        auto ancestors{ core::ancestorPath(node) };
+
+        std::vector<dnv::vista::sdk::GmodNode> parents;
+        parents.reserve(ancestors.size() > 0 ? ancestors.size() - 1 : 0);
+        for (std::size_t i{ 0 }; i + 1 < ancestors.size(); ++i)
+        {
+            parents.push_back(*ancestors[i]);
+        }
+
+        try
+        {
+            return dnv::vista::sdk::GmodPath{ std::move(parents), *ancestors.back() };
+        }
+        catch (const std::invalid_argument&)
+        {
+            return std::nullopt;
+        }
     }
 
     QModelIndex GmodTreeModel::index(int row, int column, const QModelIndex& parent) const

@@ -43,6 +43,15 @@ namespace qvistools::gui
         return m_treeView->currentIndex().data(GmodTreeModel::NodeRole).value<const dnv::vista::sdk::GmodNode*>();
     }
 
+    std::optional<dnv::vista::sdk::GmodPath> GmodTreeWidget::currentPath() const
+    {
+        if (const auto* node = currentNode(); node != nullptr)
+        {
+            return m_model->pathForNode(*node);
+        }
+        return std::nullopt;
+    }
+
     void GmodTreeWidget::navigateTo(const dnv::vista::sdk::GmodNode& node)
     {
         const auto index{ m_model->indexForNode(node) };
