@@ -93,7 +93,9 @@ namespace qvistools::gui
         QObject::connect(m_searchBar, &GmodSearchBar::nodeActivated, m_treeWidget, &GmodTreeWidget::navigateTo);
 
         QObject::connect(
-            m_treeWidget, &GmodTreeWidget::nodeSelectionChanged, m_detailWidget, &GmodNodeDetailWidget::setNode);
+            m_treeWidget, &GmodTreeWidget::nodeSelectionChanged, this, [this](const dnv::vista::sdk::GmodNode* node) {
+                m_detailWidget->setNode(node, m_treeWidget->currentPath());
+            });
     }
 
     void GmodExplorerWidget::onVersionChanged(int index)

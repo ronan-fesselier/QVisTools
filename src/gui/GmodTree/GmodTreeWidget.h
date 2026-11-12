@@ -1,6 +1,10 @@
 #pragma once
 
+#include <dnv/vista/sdk/core/GmodPath.h>
+
 #include <QWidget>
+
+#include <optional>
 
 class QEvent;
 class QTreeView;
@@ -25,6 +29,7 @@ namespace qvistools::gui
         void setGmod(const dnv::vista::sdk::Gmod& gmod);
 
         [[nodiscard]] const dnv::vista::sdk::GmodNode* currentNode() const;
+        [[nodiscard]] std::optional<dnv::vista::sdk::GmodPath> currentPath() const;
 
         void navigateTo(const dnv::vista::sdk::GmodNode& node);
 
