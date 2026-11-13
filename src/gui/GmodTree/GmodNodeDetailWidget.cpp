@@ -1,7 +1,7 @@
 #include "GmodNodeDetailWidget.h"
 
 #include "detail/StringUtils.h"
-#include "GmodChipRenderer.h"
+#include "gui/Shared/GmodChipRenderer.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 #include <dnv/vista/sdk/core/GmodPath.h>

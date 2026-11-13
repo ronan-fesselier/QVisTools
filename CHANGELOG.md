@@ -29,6 +29,8 @@
 - `GmodPathUtils`: `ancestorPath()` / `shortAncestorPath()` helpers for walking a node's ancestor chain
 - `GmodTreeModel::indexForNode()`: locates a `GmodNode`'s model index by walking its ancestor chain, used to expand and select a search result in the tree
 - `GmodTreeModel::pathForNode()`: builds a `GmodPath` for a node by walking its ancestor chain, used to show/copy its short and full path
+- `core::buildLocalId()`: builds a `LocalId` string from a primary/secondary `GmodPath`
+- `LocalIdBuilderWidget`: panel for building a `LocalId` from the selected `GmodPath`
 
 ### Changed
 

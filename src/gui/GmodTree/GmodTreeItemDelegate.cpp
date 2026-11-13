@@ -2,7 +2,7 @@
 
 #include "detail/StringUtils.h"
 #include "gui/SdkQtTypes.h"
-#include "GmodChipRenderer.h"
+#include "gui/Shared/GmodChipRenderer.h"
 #include "GmodTreeModel.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>

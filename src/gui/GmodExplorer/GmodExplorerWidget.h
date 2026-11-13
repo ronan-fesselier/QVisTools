@@ -18,6 +18,7 @@ namespace qvistools::gui
     class GmodNodeDetailWidget;
     class GmodSearchBar;
     class GmodTreeWidget;
+    class LocalIdBuilderWidget;
 
     class GmodExplorerWidget final : public QWidget
     {
@@ -37,11 +38,13 @@ namespace qvistools::gui
 
         GmodTreeWidget* m_treeWidget;
         GmodNodeDetailWidget* m_detailWidget;
+        LocalIdBuilderWidget* m_localIdWidget;
         QPushButton* m_collapseAllButton;
         QComboBox* m_versionCombo;
         GmodSearchBar* m_searchBar;
         QToolButton* m_legendButton;
         QSplitter* m_splitter;
+        QSplitter* m_leftSplitter;
 
     signals:
         void gmodChanged(const dnv::vista::sdk::Gmod& gmod);

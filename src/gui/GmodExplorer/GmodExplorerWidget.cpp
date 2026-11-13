@@ -1,10 +1,11 @@
 #include "GmodExplorerWidget.h"
 
 #include "detail/StringUtils.h"
-#include "GmodChipRenderer.h"
-#include "GmodNodeDetailWidget.h"
-#include "GmodSearchBar.h"
-#include "GmodTreeWidget.h"
+#include "gui/GmodTree/GmodNodeDetailWidget.h"
+#include "gui/GmodTree/GmodTreeWidget.h"
+#include "gui/LocalId/LocalIdBuilderWidget.h"
+#include "gui/Search/GmodSearchBar.h"
+#include "gui/Shared/GmodChipRenderer.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 #include <dnv/vista/sdk/core/VIS.h>
@@ -24,11 +25,13 @@ namespace qvistools::gui
           m_gmod{ &gmod },
           m_treeWidget{ new GmodTreeWidget{ gmod, this } },
           m_detailWidget{ new GmodNodeDetailWidget{ this } },
+          m_localIdWidget{ new LocalIdBuilderWidget{ this } },
           m_collapseAllButton{ new QPushButton{ QIcon{ ":/icons/collapse-all.svg" }, QString{}, this } },
           m_versionCombo{ new QComboBox{ this } },
           m_searchBar{ new GmodSearchBar{ gmod, this } },
           m_legendButton{ new QToolButton{ this } },
-          m_splitter{ new QSplitter{ Qt::Horizontal, this } }
+          m_splitter{ new QSplitter{ Qt::Horizontal, this } },
+          m_leftSplitter{ new QSplitter{ Qt::Vertical, this } }
     {
         m_collapseAllButton->setToolTip(tr("Collapse all"));
         m_versionCombo->setToolTip(tr("VIS version - Gmod structures differ between versions"));
@@ -70,7 +73,13 @@ namespace qvistools::gui
         treePanelLayout->addLayout(hLayout);
         treePanelLayout->addWidget(m_treeWidget);
 
-        m_splitter->addWidget(treePanel);
+        m_leftSplitter->addWidget(treePanel);
+        m_leftSplitter->addWidget(m_localIdWidget);
+        m_leftSplitter->setStretchFactor(0, 3);
+        m_leftSplitter->setStretchFactor(1, 1);
+        m_leftSplitter->setCollapsible(0, false);
+
+        m_splitter->addWidget(m_leftSplitter);
         m_splitter->addWidget(m_detailWidget);
         m_splitter->setStretchFactor(0, 3);
         m_splitter->setStretchFactor(1, 1);
@@ -95,7 +104,12 @@ namespace qvistools::gui
         QObject::connect(
             m_treeWidget, &GmodTreeWidget::nodeSelectionChanged, this, [this](const dnv::vista::sdk::GmodNode* node) {
                 m_detailWidget->setNode(node, m_treeWidget->currentPath());
+                m_localIdWidget->setPath(m_treeWidget->currentPath());
             });
+
+        QObject::connect(m_localIdWidget, &LocalIdBuilderWidget::secondaryItemRequested, this, [this]() {
+            m_localIdWidget->setSecondaryItemPath(m_treeWidget->currentPath());
+        });
     }
 
     void GmodExplorerWidget::onVersionChanged(int index)
@@ -112,6 +126,7 @@ namespace qvistools::gui
 
         m_treeWidget->setGmod(*m_gmod);
         m_searchBar->setGmod(*m_gmod);
+        m_localIdWidget->setPath(std::nullopt);
 
         emit gmodChanged(*m_gmod);
     }

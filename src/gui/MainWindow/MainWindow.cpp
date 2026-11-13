@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 
 #include "detail/StringUtils.h"
-#include "gui/GmodTree/GmodExplorerWidget.h"
+#include "gui/GmodExplorer/GmodExplorerWidget.h"
 
 #include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/Version.h>
