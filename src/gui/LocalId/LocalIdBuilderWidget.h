@@ -15,6 +15,7 @@ class QPushButton;
 
 namespace dnv::vista::sdk
 {
+    class LocalId;
     enum class CodebookName : unsigned char;
 } // namespace dnv::vista::sdk
 
@@ -31,6 +32,8 @@ namespace qvistools::gui
 
         void setPath(const std::optional<dnv::vista::sdk::GmodPath>& path);
         void setSecondaryItemPath(const std::optional<dnv::vista::sdk::GmodPath>& path);
+        void setLocalId(const dnv::vista::sdk::LocalId& localId);
+        void setParsingError(const QString& message);
 
     private:
         void setupLayout();
@@ -51,6 +54,7 @@ namespace qvistools::gui
         QPushButton* m_copyButton;
         QLabel* m_errorsValue;
         QString m_localIdText;
+        bool m_suppressRebuild{ false };
 
     signals:
         void secondaryItemRequested();

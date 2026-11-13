@@ -3,6 +3,7 @@
 #include <QWidget>
 
 class QComboBox;
+class QLineEdit;
 class QPushButton;
 class QSplitter;
 class QToolButton;
@@ -33,6 +34,7 @@ namespace qvistools::gui
         void setupConnections();
 
         void onVersionChanged(int index);
+        void onLocalIdParseRequested();
 
         const dnv::vista::sdk::Gmod* m_gmod;
 
@@ -42,6 +44,7 @@ namespace qvistools::gui
         QPushButton* m_collapseAllButton;
         QComboBox* m_versionCombo;
         GmodSearchBar* m_searchBar;
+        QLineEdit* m_localIdParseEdit;
         QToolButton* m_legendButton;
         QSplitter* m_splitter;
         QSplitter* m_leftSplitter;

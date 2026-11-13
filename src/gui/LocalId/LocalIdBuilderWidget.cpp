@@ -6,6 +6,7 @@
 #include <dnv/vista/sdk/core/CodebookName.h>
 #include <dnv/vista/sdk/core/Codebooks.h>
 #include <dnv/vista/sdk/core/GmodPath.h>
+#include <dnv/vista/sdk/core/LocalId.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
 #include <QApplication>
@@ -32,14 +33,10 @@ namespace qvistools::gui
     namespace
     {
         constexpr std::array<dnv::vista::sdk::CodebookName, LocalIdBuilderWidget::TagCount> TagCodebooks{
-            dnv::vista::sdk::CodebookName::Quantity,
-            dnv::vista::sdk::CodebookName::Content,
-            dnv::vista::sdk::CodebookName::Calculation,
-            dnv::vista::sdk::CodebookName::State,
-            dnv::vista::sdk::CodebookName::Command,
-            dnv::vista::sdk::CodebookName::Type,
-            dnv::vista::sdk::CodebookName::Position,
-            dnv::vista::sdk::CodebookName::Detail,
+            dnv::vista::sdk::CodebookName::Quantity,    dnv::vista::sdk::CodebookName::Content,
+            dnv::vista::sdk::CodebookName::Calculation, dnv::vista::sdk::CodebookName::State,
+            dnv::vista::sdk::CodebookName::Command,     dnv::vista::sdk::CodebookName::Type,
+            dnv::vista::sdk::CodebookName::Position,    dnv::vista::sdk::CodebookName::Detail,
         };
     } // namespace
 
@@ -155,13 +152,11 @@ namespace qvistools::gui
 
     void LocalIdBuilderWidget::setupConnections()
     {
-        QObject::connect(m_setSecondaryItemButton, &QPushButton::clicked, this, [this]() {
-            emit secondaryItemRequested();
-        });
+        QObject::connect(
+            m_setSecondaryItemButton, &QPushButton::clicked, this, [this]() { emit secondaryItemRequested(); });
 
-        QObject::connect(m_clearSecondaryItemButton, &QPushButton::clicked, this, [this]() {
-            setSecondaryItemPath(std::nullopt);
-        });
+        QObject::connect(
+            m_clearSecondaryItemButton, &QPushButton::clicked, this, [this]() { setSecondaryItemPath(std::nullopt); });
 
         for (auto* combo : m_tagCombos)
         {
@@ -170,9 +165,8 @@ namespace qvistools::gui
 
         QObject::connect(m_verboseCheckBox, &QCheckBox::toggled, this, &LocalIdBuilderWidget::rebuildLocalId);
 
-        QObject::connect(m_copyButton, &QPushButton::clicked, this, [this]() {
-            QApplication::clipboard()->setText(m_localIdText);
-        });
+        QObject::connect(
+            m_copyButton, &QPushButton::clicked, this, [this]() { QApplication::clipboard()->setText(m_localIdText); });
     }
 
     void LocalIdBuilderWidget::setSecondaryItemPath(const std::optional<dnv::vista::sdk::GmodPath>& path)
@@ -186,8 +180,46 @@ namespace qvistools::gui
         rebuildLocalId();
     }
 
+    void LocalIdBuilderWidget::setLocalId(const dnv::vista::sdk::LocalId& localId)
+    {
+        m_suppressRebuild = true;
+
+        setPath(localId.primaryItem());
+        setSecondaryItemPath(localId.secondaryItem());
+
+        m_verboseCheckBox->setChecked(localId.isVerboseMode());
+
+        for (const auto& tag : localId.metadataTags())
+        {
+            const auto it{ std::find(TagCodebooks.begin(), TagCodebooks.end(), tag.name()) };
+            if (it == TagCodebooks.end())
+            {
+                continue;
+            }
+
+            const auto index{ static_cast<std::size_t>(std::distance(TagCodebooks.begin(), it)) };
+            m_tagCombos[index]->setCurrentText(detail::toQString(tag.value()));
+        }
+
+        m_suppressRebuild = false;
+        rebuildLocalId();
+    }
+
+    void LocalIdBuilderWidget::setParsingError(const QString& message)
+    {
+        m_localIdValue->setText(tr("(invalid)"));
+        m_errorsValue->setText(message);
+        m_localIdText.clear();
+        m_copyButton->setEnabled(false);
+    }
+
     void LocalIdBuilderWidget::rebuildLocalId()
     {
+        if (m_suppressRebuild)
+        {
+            return;
+        }
+
         m_errorsValue->clear();
         m_localIdText.clear();
         m_copyButton->setEnabled(false);
@@ -214,9 +246,7 @@ namespace qvistools::gui
             return;
         }
 
-        const auto result{
-            core::buildLocalId(*m_primaryItem, m_secondaryItem, tags, m_verboseCheckBox->isChecked())
-        };
+        const auto result{ core::buildLocalId(*m_primaryItem, m_secondaryItem, tags, m_verboseCheckBox->isChecked()) };
 
         if (!result.localId.has_value())
         {

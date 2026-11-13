@@ -8,13 +8,21 @@
 #include "gui/Shared/GmodChipRenderer.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
+#include <dnv/vista/sdk/core/GmodPath.h>
+#include <dnv/vista/sdk/core/LocalId.h>
+#include <dnv/vista/sdk/core/ParsingErrors.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
+#include <QApplication>
+#include <QColor>
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QLineEdit>
+#include <QPalette>
 #include <QPushButton>
 #include <QSplitter>
+#include <QStringList>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -29,6 +37,7 @@ namespace qvistools::gui
           m_collapseAllButton{ new QPushButton{ QIcon{ ":/icons/collapse-all.svg" }, QString{}, this } },
           m_versionCombo{ new QComboBox{ this } },
           m_searchBar{ new GmodSearchBar{ gmod, this } },
+          m_localIdParseEdit{ new QLineEdit{ this } },
           m_legendButton{ new QToolButton{ this } },
           m_splitter{ new QSplitter{ Qt::Horizontal, this } },
           m_leftSplitter{ new QSplitter{ Qt::Vertical, this } }
@@ -40,6 +49,9 @@ namespace qvistools::gui
         m_legendButton->setAutoRaise(true);
         m_legendButton->setFocusPolicy(Qt::NoFocus);
         m_legendButton->setToolTip(chip::legendHtml());
+
+        m_localIdParseEdit->setPlaceholderText(tr("Paste a LocalId and press Enter..."));
+        m_localIdParseEdit->setClearButtonEnabled(true);
 
         setupVersionCombo(gmod);
         setupLayout();
@@ -62,7 +74,8 @@ namespace qvistools::gui
     void GmodExplorerWidget::setupLayout()
     {
         auto* hLayout{ new QHBoxLayout };
-        hLayout->addWidget(m_searchBar);
+        hLayout->addWidget(m_searchBar, 1);
+        hLayout->addWidget(m_localIdParseEdit, 1);
         hLayout->addWidget(m_collapseAllButton, 0, Qt::AlignTop);
         hLayout->addWidget(m_versionCombo, 0, Qt::AlignTop);
         hLayout->addWidget(m_legendButton, 0, Qt::AlignTop);
@@ -110,6 +123,9 @@ namespace qvistools::gui
         QObject::connect(m_localIdWidget, &LocalIdBuilderWidget::secondaryItemRequested, this, [this]() {
             m_localIdWidget->setSecondaryItemPath(m_treeWidget->currentPath());
         });
+
+        QObject::connect(
+            m_localIdParseEdit, &QLineEdit::returnPressed, this, &GmodExplorerWidget::onLocalIdParseRequested);
     }
 
     void GmodExplorerWidget::onVersionChanged(int index)
@@ -129,5 +145,49 @@ namespace qvistools::gui
         m_localIdWidget->setPath(std::nullopt);
 
         emit gmodChanged(*m_gmod);
+    }
+
+    void GmodExplorerWidget::onLocalIdParseRequested()
+    {
+        const auto text{ m_localIdParseEdit->text().trimmed() };
+        if (text.isEmpty())
+        {
+            return;
+        }
+
+        dnv::vista::sdk::ParsingErrors errors{ {} };
+        const auto localId{ dnv::vista::sdk::LocalId::fromString(text.toStdString(), errors) };
+        if (!localId.has_value())
+        {
+            QPalette errorPalette{ m_localIdParseEdit->palette() };
+            errorPalette.setColor(QPalette::Base, QColor{ 255, 204, 204 });
+            m_localIdParseEdit->setPalette(errorPalette);
+
+            QStringList lines;
+            for (const auto& error : errors)
+            {
+                lines << detail::toQString(error.type) + QStringLiteral(": ") + detail::toQString(error.message);
+            }
+            m_localIdWidget->setParsingError(
+                lines.isEmpty() ? tr("Failed to parse LocalId") : lines.join(QStringLiteral("\n")));
+            return;
+        }
+
+        m_localIdParseEdit->setPalette(QApplication::palette());
+
+        const auto version{ localId->version() };
+        if (version != m_gmod->version())
+        {
+            const auto index{ m_versionCombo->findData(QVariant::fromValue(static_cast<int>(version))) };
+            if (index >= 0)
+            {
+                m_versionCombo->setCurrentIndex(index);
+            }
+        }
+
+        m_treeWidget->navigateTo(localId->primaryItem().withoutLocations().node());
+        m_localIdWidget->setLocalId(*localId);
+
+        m_localIdParseEdit->selectAll();
     }
 } // namespace qvistools::gui
