@@ -1,5 +1,6 @@
 #include "GmodExplorerWidget.h"
 
+#include "core/LocalIdBuilderUtils.h"
 #include "detail/StringUtils.h"
 #include "gui/GmodTree/GmodNodeDetailWidget.h"
 #include "gui/GmodTree/GmodTreeWidget.h"
@@ -116,9 +117,17 @@ namespace qvistools::gui
 
         QObject::connect(
             m_treeWidget, &GmodTreeWidget::nodeSelectionChanged, this, [this](const dnv::vista::sdk::GmodNode* node) {
+                if (m_navigatingToLocalId)
+                {
+                    return;
+                }
+
                 m_detailWidget->setNode(node, m_treeWidget->currentPath());
-                m_localIdWidget->setPath(m_treeWidget->currentPath());
             });
+
+        QObject::connect(m_localIdWidget, &LocalIdBuilderWidget::primaryItemRequested, this, [this]() {
+            m_localIdWidget->setPath(m_treeWidget->currentPath());
+        });
 
         QObject::connect(m_localIdWidget, &LocalIdBuilderWidget::secondaryItemRequested, this, [this]() {
             m_localIdWidget->setSecondaryItemPath(m_treeWidget->currentPath());
@@ -126,6 +135,9 @@ namespace qvistools::gui
 
         QObject::connect(
             m_localIdParseEdit, &QLineEdit::returnPressed, this, &GmodExplorerWidget::onLocalIdParseRequested);
+
+        QObject::connect(
+            m_localIdWidget, &LocalIdBuilderWidget::convertRequested, this, &GmodExplorerWidget::onConvertRequested);
     }
 
     void GmodExplorerWidget::onVersionChanged(int index)
@@ -175,7 +187,40 @@ namespace qvistools::gui
 
         m_localIdParseEdit->setPalette(QApplication::palette());
 
-        const auto version{ localId->version() };
+        navigateToLocalId(*localId);
+
+        m_localIdParseEdit->selectAll();
+    }
+
+    void GmodExplorerWidget::onConvertRequested(dnv::vista::sdk::VisVersion targetVersion)
+    {
+        const auto text{ m_localIdWidget->localIdText() };
+        if (text.isEmpty())
+        {
+            return;
+        }
+
+        const auto localId{ dnv::vista::sdk::LocalId::fromString(text.toStdString()) };
+        if (!localId.has_value())
+        {
+            return;
+        }
+
+        const auto converted{ core::convertLocalId(*localId, targetVersion) };
+        if (!converted.has_value())
+        {
+            m_localIdWidget->setParsingError(tr("Conversion to the target VIS version failed"));
+            return;
+        }
+
+        navigateToLocalId(*converted);
+    }
+
+    void GmodExplorerWidget::navigateToLocalId(const dnv::vista::sdk::LocalId& localId)
+    {
+        m_navigatingToLocalId = true;
+
+        const auto version{ localId.version() };
         if (version != m_gmod->version())
         {
             const auto index{ m_versionCombo->findData(QVariant::fromValue(static_cast<int>(version))) };
@@ -185,9 +230,11 @@ namespace qvistools::gui
             }
         }
 
-        m_treeWidget->navigateTo(localId->primaryItem().withoutLocations().node());
-        m_localIdWidget->setLocalId(*localId);
+        m_treeWidget->navigateTo(localId.primaryItem().withoutLocations().node());
 
-        m_localIdParseEdit->selectAll();
+        m_navigatingToLocalId = false;
+
+        m_detailWidget->setNode(m_treeWidget->currentNode(), m_treeWidget->currentPath());
+        m_localIdWidget->setLocalId(localId);
     }
 } // namespace qvistools::gui

@@ -31,6 +31,8 @@
 - `GmodTreeModel::pathForNode()`: builds a `GmodPath` for a node by walking its ancestor chain, used to show/copy its short and full path
 - `core::buildLocalId()`: builds a `LocalId` string from a primary/secondary `GmodPath`
 - `LocalIdBuilderWidget`: panel for building a `LocalId` from the selected `GmodPath`
+- `core::convertLocalId()`: converts a `LocalId` to another VIS version.
+- `LocalIdBuilderWidget`: "Convert to..." menu.
 
 ### Changed
 

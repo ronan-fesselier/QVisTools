@@ -32,10 +32,18 @@ namespace qvistools::gui
         m_treeView->setModel(newModel);
         m_treeView->collapseAll();
 
+        QObject::connect(
+            m_treeView->selectionModel(),
+            &QItemSelectionModel::currentChanged,
+            this,
+            &GmodTreeWidget::onCurrentRowChanged);
+
         m_model->deleteLater();
         m_model = newModel;
 
         expandRoot();
+
+        emit nodeSelectionChanged(nullptr);
     }
 
     const dnv::vista::sdk::GmodNode* GmodTreeWidget::currentNode() const

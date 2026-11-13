@@ -9,6 +9,7 @@
 #include <dnv/vista/sdk/core/LocalId.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
@@ -18,9 +19,11 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPalette>
 #include <QPushButton>
 #include <QStringList>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -43,12 +46,15 @@ namespace qvistools::gui
     LocalIdBuilderWidget::LocalIdBuilderWidget(QWidget* parent)
         : QWidget{ parent },
           m_primaryItemValue{ new QLabel{ this } },
+          m_setPrimaryItemButton{ new QPushButton{ tr("Set from tree"), this } },
           m_secondaryItemValue{ new QLabel{ this } },
           m_setSecondaryItemButton{ new QPushButton{ tr("Set from tree"), this } },
           m_clearSecondaryItemButton{ new QPushButton{ tr("Clear"), this } },
           m_verboseCheckBox{ new QCheckBox{ tr("Verbose"), this } },
           m_localIdValue{ new QLineEdit{ this } },
           m_copyButton{ new QPushButton{ tr("Copy"), this } },
+          m_convertButton{ new QToolButton{ this } },
+          m_convertMenu{ new QMenu{ this } },
           m_errorsValue{ new QLabel{ this } }
     {
         for (auto& combo : m_tagCombos)
@@ -68,6 +74,20 @@ namespace qvistools::gui
         m_copyButton->setEnabled(false);
         m_clearSecondaryItemButton->setEnabled(false);
 
+        m_convertButton->setText(tr("Convert to..."));
+        m_convertButton->setPopupMode(QToolButton::InstantPopup);
+        m_convertButton->setMenu(m_convertMenu);
+        m_convertButton->setEnabled(false);
+
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        for (const auto version : vis.versions())
+        {
+            auto* action{ m_convertMenu->addAction(
+                detail::toQString(dnv::vista::sdk::VisVersions::toString(version))) };
+            QObject::connect(action, &QAction::triggered, this, [this, version]() { emit convertRequested(version); });
+            m_convertActions.emplace_back(version, action);
+        }
+
         setupLayout();
         setupConnections();
 
@@ -82,6 +102,7 @@ namespace qvistools::gui
             m_primaryItem.has_value() ? detail::toQString(m_primaryItem->toString()) : QString{});
 
         setSecondaryItemPath(std::nullopt);
+        updateConvertMenu();
 
         const auto& vis{ dnv::vista::sdk::VIS::instance() };
         const auto& codebooks{ vis.codebooks(m_primaryItem.has_value() ? m_primaryItem->version() : vis.latest()) };
@@ -112,7 +133,12 @@ namespace qvistools::gui
     void LocalIdBuilderWidget::setupLayout()
     {
         auto* formLayout{ new QFormLayout };
-        formLayout->addRow(tr("Primary item:"), m_primaryItemValue);
+
+        auto* primaryItemLayout{ new QHBoxLayout };
+        primaryItemLayout->addWidget(m_primaryItemValue);
+        primaryItemLayout->addWidget(m_setPrimaryItemButton);
+        primaryItemLayout->addStretch(1);
+        formLayout->addRow(tr("Primary item:"), primaryItemLayout);
 
         auto* secondaryItemLayout{ new QHBoxLayout };
         secondaryItemLayout->addWidget(m_secondaryItemValue);
@@ -133,6 +159,7 @@ namespace qvistools::gui
         localIdLayout->addWidget(m_localIdValue, 1);
         localIdLayout->addWidget(m_verboseCheckBox);
         localIdLayout->addWidget(m_copyButton);
+        localIdLayout->addWidget(m_convertButton);
         formLayout->addRow(tr("LocalId:"), localIdLayout);
 
         m_errorsValue->setWordWrap(true);
@@ -153,6 +180,9 @@ namespace qvistools::gui
     void LocalIdBuilderWidget::setupConnections()
     {
         QObject::connect(
+            m_setPrimaryItemButton, &QPushButton::clicked, this, [this]() { emit primaryItemRequested(); });
+
+        QObject::connect(
             m_setSecondaryItemButton, &QPushButton::clicked, this, [this]() { emit secondaryItemRequested(); });
 
         QObject::connect(
@@ -167,6 +197,15 @@ namespace qvistools::gui
 
         QObject::connect(
             m_copyButton, &QPushButton::clicked, this, [this]() { QApplication::clipboard()->setText(m_localIdText); });
+    }
+
+    void LocalIdBuilderWidget::updateConvertMenu()
+    {
+        for (const auto& [version, action] : m_convertActions)
+        {
+            action->setEnabled(
+                m_primaryItem.has_value() && static_cast<int>(version) > static_cast<int>(m_primaryItem->version()));
+        }
     }
 
     void LocalIdBuilderWidget::setSecondaryItemPath(const std::optional<dnv::vista::sdk::GmodPath>& path)
@@ -211,6 +250,7 @@ namespace qvistools::gui
         m_errorsValue->setText(message);
         m_localIdText.clear();
         m_copyButton->setEnabled(false);
+        m_convertButton->setEnabled(false);
     }
 
     void LocalIdBuilderWidget::rebuildLocalId()
@@ -223,6 +263,7 @@ namespace qvistools::gui
         m_errorsValue->clear();
         m_localIdText.clear();
         m_copyButton->setEnabled(false);
+        m_convertButton->setEnabled(false);
 
         if (!m_primaryItem.has_value())
         {
@@ -264,5 +305,6 @@ namespace qvistools::gui
         m_localIdText = detail::toQString(*result.localId);
         m_localIdValue->setText(m_localIdText);
         m_copyButton->setEnabled(true);
+        m_convertButton->setEnabled(true);
     }
 } // namespace qvistools::gui

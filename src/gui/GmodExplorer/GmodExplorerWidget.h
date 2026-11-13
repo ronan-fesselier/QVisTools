@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+#include <cstdint>
+
 class QComboBox;
 class QLineEdit;
 class QPushButton;
@@ -12,6 +14,8 @@ namespace dnv::vista::sdk
 {
     class Gmod;
     class GmodNode;
+    class LocalId;
+    enum class VisVersion : std::uint8_t;
 } // namespace dnv::vista::sdk
 
 namespace qvistools::gui
@@ -35,6 +39,9 @@ namespace qvistools::gui
 
         void onVersionChanged(int index);
         void onLocalIdParseRequested();
+        void onConvertRequested(dnv::vista::sdk::VisVersion targetVersion);
+
+        void navigateToLocalId(const dnv::vista::sdk::LocalId& localId);
 
         const dnv::vista::sdk::Gmod* m_gmod;
 
@@ -48,6 +55,7 @@ namespace qvistools::gui
         QToolButton* m_legendButton;
         QSplitter* m_splitter;
         QSplitter* m_leftSplitter;
+        bool m_navigatingToLocalId{ false };
 
     signals:
         void gmodChanged(const dnv::vista::sdk::Gmod& gmod);

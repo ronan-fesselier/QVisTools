@@ -21,8 +21,8 @@ namespace qvistools::core
         const auto& codebooks{ vis.codebooks(primaryItem.version()) };
 
         auto builder{ dnv::vista::sdk::LocalIdBuilder::create(primaryItem.version())
-                           .withPrimaryItem(primaryItem)
-                           .withVerboseMode(verbose) };
+                          .withPrimaryItem(primaryItem)
+                          .withVerboseMode(verbose) };
 
         if (secondaryItem.has_value())
         {
@@ -50,6 +50,20 @@ namespace qvistools::core
         catch (const std::invalid_argument& e)
         {
             return { std::nullopt, { { "ValidationError", e.what() } } };
+        }
+    }
+
+    std::optional<dnv::vista::sdk::LocalId> convertLocalId(
+        const dnv::vista::sdk::LocalId& localId, dnv::vista::sdk::VisVersion targetVersion)
+    {
+        try
+        {
+            const auto& vis{ dnv::vista::sdk::VIS::instance() };
+            return vis.convertLocalId(localId, targetVersion);
+        }
+        catch (const std::invalid_argument&)
+        {
+            return std::nullopt;
         }
     }
 } // namespace qvistools::core

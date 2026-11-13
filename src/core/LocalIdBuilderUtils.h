@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dnv/vista/sdk/core/CodebookName.h>
+#include <dnv/vista/sdk/core/VisVersions.h>
 
 #include <optional>
 #include <string>
@@ -10,6 +11,7 @@
 namespace dnv::vista::sdk
 {
     class GmodPath;
+    class LocalId;
 } // namespace dnv::vista::sdk
 
 namespace qvistools::core
@@ -31,4 +33,7 @@ namespace qvistools::core
         const std::optional<dnv::vista::sdk::GmodPath>& secondaryItem,
         const std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>>& tags,
         bool verbose);
+
+    [[nodiscard]] std::optional<dnv::vista::sdk::LocalId> convertLocalId(
+        const dnv::vista::sdk::LocalId& localId, dnv::vista::sdk::VisVersion targetVersion);
 } // namespace qvistools::core
