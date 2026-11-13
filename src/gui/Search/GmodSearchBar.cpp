@@ -2,8 +2,8 @@
 
 #include "core/GmodSearchIndex.h"
 #include "detail/StringUtils.h"
-#include "gui/SdkQtTypes.h"
 #include "GmodSearchResultDelegate.h"
+#include "gui/SdkQtTypes.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 

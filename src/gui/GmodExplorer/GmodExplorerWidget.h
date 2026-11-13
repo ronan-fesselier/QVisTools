@@ -24,6 +24,7 @@ namespace qvistools::gui
     class GmodSearchBar;
     class GmodTreeWidget;
     class LocalIdBuilderWidget;
+    class UniversalIdWidget;
 
     class GmodExplorerWidget final : public QWidget
     {
@@ -48,6 +49,7 @@ namespace qvistools::gui
         GmodTreeWidget* m_treeWidget;
         GmodNodeDetailWidget* m_detailWidget;
         LocalIdBuilderWidget* m_localIdWidget;
+        UniversalIdWidget* m_universalIdWidget;
         QPushButton* m_collapseAllButton;
         QComboBox* m_versionCombo;
         GmodSearchBar* m_searchBar;

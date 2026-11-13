@@ -7,6 +7,7 @@
 #include "gui/LocalId/LocalIdBuilderWidget.h"
 #include "gui/Search/GmodSearchBar.h"
 #include "gui/Shared/GmodChipRenderer.h"
+#include "gui/UniversalId/UniversalIdWidget.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 #include <dnv/vista/sdk/core/GmodPath.h>
@@ -35,6 +36,7 @@ namespace qvistools::gui
           m_treeWidget{ new GmodTreeWidget{ gmod, this } },
           m_detailWidget{ new GmodNodeDetailWidget{ this } },
           m_localIdWidget{ new LocalIdBuilderWidget{ this } },
+          m_universalIdWidget{ new UniversalIdWidget{ this } },
           m_collapseAllButton{ new QPushButton{ QIcon{ ":/icons/collapse-all.svg" }, QString{}, this } },
           m_versionCombo{ new QComboBox{ this } },
           m_searchBar{ new GmodSearchBar{ gmod, this } },
@@ -87,8 +89,14 @@ namespace qvistools::gui
         treePanelLayout->addLayout(hLayout);
         treePanelLayout->addWidget(m_treeWidget);
 
+        auto* localIdPanel{ new QWidget{ this } };
+        auto* localIdPanelLayout{ new QVBoxLayout{ localIdPanel } };
+        localIdPanelLayout->setContentsMargins(0, 0, 0, 0);
+        localIdPanelLayout->addWidget(m_localIdWidget);
+        localIdPanelLayout->addWidget(m_universalIdWidget);
+
         m_leftSplitter->addWidget(treePanel);
-        m_leftSplitter->addWidget(m_localIdWidget);
+        m_leftSplitter->addWidget(localIdPanel);
         m_leftSplitter->setStretchFactor(0, 3);
         m_leftSplitter->setStretchFactor(1, 1);
         m_leftSplitter->setCollapsible(0, false);
@@ -138,6 +146,12 @@ namespace qvistools::gui
 
         QObject::connect(
             m_localIdWidget, &LocalIdBuilderWidget::convertRequested, this, &GmodExplorerWidget::onConvertRequested);
+
+        QObject::connect(
+            m_localIdWidget,
+            &LocalIdBuilderWidget::localIdChanged,
+            m_universalIdWidget,
+            &UniversalIdWidget::setLocalIdText);
     }
 
     void GmodExplorerWidget::onVersionChanged(int index)

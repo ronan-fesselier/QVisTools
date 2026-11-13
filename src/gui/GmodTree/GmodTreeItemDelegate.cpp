@@ -1,9 +1,9 @@
 #include "GmodTreeItemDelegate.h"
 
 #include "detail/StringUtils.h"
+#include "GmodTreeModel.h"
 #include "gui/SdkQtTypes.h"
 #include "gui/Shared/GmodChipRenderer.h"
-#include "GmodTreeModel.h"
 
 #include <dnv/vista/sdk/core/GmodNode.h>
 

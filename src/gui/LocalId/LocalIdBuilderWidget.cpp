@@ -251,6 +251,8 @@ namespace qvistools::gui
         m_localIdText.clear();
         m_copyButton->setEnabled(false);
         m_convertButton->setEnabled(false);
+
+        emit localIdChanged(m_localIdText);
     }
 
     void LocalIdBuilderWidget::rebuildLocalId()
@@ -268,6 +270,7 @@ namespace qvistools::gui
         if (!m_primaryItem.has_value())
         {
             m_localIdValue->setText(QString{});
+            emit localIdChanged(m_localIdText);
             return;
         }
 
@@ -284,6 +287,7 @@ namespace qvistools::gui
         if (tags.empty())
         {
             m_localIdValue->setText(tr("(incomplete - select at least one metadata tag)"));
+            emit localIdChanged(m_localIdText);
             return;
         }
 
@@ -299,6 +303,7 @@ namespace qvistools::gui
                 lines << detail::toQString(error.type) + QStringLiteral(": ") + detail::toQString(error.message);
             }
             m_errorsValue->setText(lines.join(QStringLiteral("\n")));
+            emit localIdChanged(m_localIdText);
             return;
         }
 
@@ -306,5 +311,7 @@ namespace qvistools::gui
         m_localIdValue->setText(m_localIdText);
         m_copyButton->setEnabled(true);
         m_convertButton->setEnabled(true);
+
+        emit localIdChanged(m_localIdText);
     }
 } // namespace qvistools::gui

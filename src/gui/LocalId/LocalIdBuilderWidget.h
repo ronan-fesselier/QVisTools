@@ -74,5 +74,6 @@ namespace qvistools::gui
         void primaryItemRequested();
         void secondaryItemRequested();
         void convertRequested(dnv::vista::sdk::VisVersion targetVersion);
+        void localIdChanged(const QString& localIdText);
     };
 } // namespace qvistools::gui

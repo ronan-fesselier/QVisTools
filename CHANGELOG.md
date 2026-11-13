@@ -33,6 +33,8 @@
 - `LocalIdBuilderWidget`: panel for building a `LocalId` from the selected `GmodPath`
 - `core::convertLocalId()`: converts a `LocalId` to another VIS version.
 - `LocalIdBuilderWidget`: "Convert to..." menu.
+- `core::buildUniversalId()`: builds a `UniversalId` string from an IMO number and a `LocalId`
+- `UniversalIdWidget`: panel for building a `UniversalId` from an IMO number and the current `LocalId`
 
 ### Changed
 

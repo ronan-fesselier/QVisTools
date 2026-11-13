@@ -9,6 +9,7 @@ list(APPEND QVIS_TOOLS_SOURCES
     ${QVIS_TOOLS_SOURCE_DIR}/core/GmodPathUtils.cpp
     ${QVIS_TOOLS_SOURCE_DIR}/core/GmodSearchIndex.cpp
     ${QVIS_TOOLS_SOURCE_DIR}/core/LocalIdBuilderUtils.cpp
+    ${QVIS_TOOLS_SOURCE_DIR}/core/UniversalIdUtils.cpp
 
     ${QVIS_TOOLS_SOURCE_DIR}/gui/GmodExplorer/GmodExplorerWidget.cpp
 
@@ -25,6 +26,8 @@ list(APPEND QVIS_TOOLS_SOURCES
     ${QVIS_TOOLS_SOURCE_DIR}/gui/Search/GmodSearchResultDelegate.cpp
 
     ${QVIS_TOOLS_SOURCE_DIR}/gui/Shared/GmodChipRenderer.cpp
+
+    ${QVIS_TOOLS_SOURCE_DIR}/gui/UniversalId/UniversalIdWidget.cpp
 
     ${QVIS_TOOLS_SOURCE_DIR}/main.cpp
 
