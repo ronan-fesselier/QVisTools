@@ -207,7 +207,16 @@ namespace qvistools
 
     void GmodExplorer::onSearchMatchActivated(const viscore::gmod::SearchIndex::Match& match)
     {
-        const auto targetIndex{ m_model->indexForMatch(match) };
+        revealIndex(m_model->indexForMatch(match));
+    }
+
+    void GmodExplorer::revealPath(const dnv::vista::sdk::GmodPath& path)
+    {
+        revealIndex(m_model->indexForPath(path));
+    }
+
+    void GmodExplorer::revealIndex(const QModelIndex& targetIndex)
+    {
         if (!targetIndex.isValid())
         {
             return;

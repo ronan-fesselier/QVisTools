@@ -43,6 +43,7 @@ namespace qvistools
     signals:
         void primaryItemUnmapRequested();
         void secondaryItemUnmapRequested();
+        void revealPathRequested(const dnv::vista::sdk::GmodPath& path);
         void existingIdVersionParsed(dnv::vista::sdk::VisVersion version);
     };
 } // namespace qvistools

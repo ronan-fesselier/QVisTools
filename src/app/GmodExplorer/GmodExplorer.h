@@ -41,6 +41,7 @@ namespace qvistools
         explicit GmodExplorer(const dnv::vista::sdk::Gmod& gmod, QWidget* parent = nullptr);
 
         void setVisVersion(dnv::vista::sdk::VisVersion version);
+        void revealPath(const dnv::vista::sdk::GmodPath& path);
 
     private:
         void setupTreeView();
@@ -54,6 +55,7 @@ namespace qvistools
         void onVersionChanged(int index);
         void onRootCollapsed(const QModelIndex& index);
         void onSearchMatchActivated(const viscore::gmod::SearchIndex::Match& match);
+        void revealIndex(const QModelIndex& targetIndex);
         bool onTreeViewMousePress(QMouseEvent* event);
 
         const dnv::vista::sdk::Gmod* m_gmod;

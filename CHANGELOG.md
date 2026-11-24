@@ -17,6 +17,7 @@
 - Location individualization dialog for mapped item slots, to set number, side, vertical, transverse, and longitudinal location values on individualizable path segments
 - Universal ID builder alongside the Local ID builder, with an IMO number field and its own verbose mode
 - Parsing an existing Local or Universal ID to fill the primary/secondary item slots, metadata tags, verbose mode, and IMO number, switching the Gmod explorer's VIS version if needed
+- Revealing a mapped primary/secondary item slot's node in the Gmod tree from its context menu
 
 #### Dependencies
 

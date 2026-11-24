@@ -158,5 +158,9 @@ namespace qvistools
             m_idPanel, &IdPanel::existingIdVersionParsed, this, [this](dnv::vista::sdk::VisVersion version) {
                 m_explorer->setVisVersion(version);
             });
+
+        QObject::connect(m_idPanel, &IdPanel::revealPathRequested, this, [this](const dnv::vista::sdk::GmodPath& path) {
+            m_explorer->revealPath(path);
+        });
     }
 } // namespace qvistools

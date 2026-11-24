@@ -236,6 +236,17 @@ namespace qvistools
             m_secondaryItemSlot, &GmodPathItemSlot::pathEdited, this, [this](const dnv::vista::sdk::GmodPath& path) {
                 setSecondaryItem(path);
             });
+
+        QObject::connect(
+            m_primaryItemSlot,
+            &GmodPathItemSlot::revealInTreeRequested,
+            this,
+            &LocalIdBuilderWidget::revealPathRequested);
+        QObject::connect(
+            m_secondaryItemSlot,
+            &GmodPathItemSlot::revealInTreeRequested,
+            this,
+            &LocalIdBuilderWidget::revealPathRequested);
     }
 
     void LocalIdBuilderWidget::rebuildMetadataRows()

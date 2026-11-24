@@ -67,6 +67,7 @@ namespace qvistools
     signals:
         void primaryItemUnmapRequested();
         void secondaryItemUnmapRequested();
+        void revealPathRequested(const dnv::vista::sdk::GmodPath& path);
         void errorsChanged(const QStringList& errors);
         void localIdBuilderChanged(const std::optional<dnv::vista::sdk::LocalIdBuilder>& localIdBuilder);
     };
