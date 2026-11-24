@@ -42,6 +42,7 @@ namespace qvistools
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
         [[nodiscard]] QModelIndex indexForMatch(const viscore::gmod::SearchIndex::Match& match) const;
+        [[nodiscard]] QModelIndex indexForPath(const dnv::vista::sdk::GmodPath& path) const;
         [[nodiscard]] std::optional<dnv::vista::sdk::GmodPath> pathForIndex(const QModelIndex& index) const;
 
     private:
@@ -57,9 +58,13 @@ namespace qvistools
             const dnv::vista::sdk::GmodNode* parentNode,
             const QModelIndex& parentIndex) const;
 
+        [[nodiscard]] QModelIndex indexForDisplayedPath(
+            const std::vector<const dnv::vista::sdk::GmodNode*>& displayedPath) const;
+
         const std::vector<const dnv::vista::sdk::GmodNode*>& cachedSortedChildren(
             const dnv::vista::sdk::GmodNode& node) const;
 
+        const dnv::vista::sdk::Gmod* m_gmod;
         const dnv::vista::sdk::GmodNode* m_rootNode;
 
         struct HandleKeyHash

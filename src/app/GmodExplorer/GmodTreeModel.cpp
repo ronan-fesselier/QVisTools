@@ -15,6 +15,7 @@ namespace qvistools
 {
     GmodTreeModel::GmodTreeModel(const dnv::vista::sdk::Gmod& gmod, QObject* parent)
         : QAbstractItemModel{ parent },
+          m_gmod{ &gmod },
           m_rootNode{ &gmod.rootNode() }
     {}
 
@@ -176,45 +177,20 @@ namespace qvistools
             path.push_back(displayedParent);
         }
         std::reverse(path.begin(), path.end());
+        path.push_back(match.node);
 
-        QModelIndex current{ index(0, 0, {}) };
-        for (std::size_t i{ 1 }; i < path.size(); ++i)
-        {
-            const auto* parentNode{ path[i - 1] };
-            const auto* childNode{ path[i] };
+        return indexForDisplayedPath(path);
+    }
 
-            if (viscore::gmod::effectiveNode(*parentNode) == childNode)
-            {
-                continue;
-            }
-
-            const auto& children{ cachedSortedChildren(*parentNode) };
-            const auto it{ std::find(children.begin(), children.end(), childNode) };
-            if (it == children.end())
-            {
-                return {};
-            }
-
-            current = index(static_cast<int>(it - children.begin()), 0, current);
-            if (!current.isValid())
-            {
-                return {};
-            }
-        }
-
-        if (viscore::gmod::effectiveNode(*entryNode) == match.node)
-        {
-            return current;
-        }
-
-        const auto& entryChildren{ cachedSortedChildren(*entryNode) };
-        const auto nodeIt{ std::find(entryChildren.begin(), entryChildren.end(), match.node) };
-        if (nodeIt == entryChildren.end())
+    QModelIndex GmodTreeModel::indexForPath(const dnv::vista::sdk::GmodPath& path) const
+    {
+        const auto displayedPath{ viscore::gmod::resolveDisplayedPath(*m_gmod, path) };
+        if (!displayedPath.has_value())
         {
             return {};
         }
 
-        return index(static_cast<int>(nodeIt - entryChildren.begin()), 0, current);
+        return indexForDisplayedPath(*displayedPath);
     }
 
     std::optional<dnv::vista::sdk::GmodPath> GmodTreeModel::pathForIndex(const QModelIndex& index) const
@@ -284,6 +260,38 @@ namespace qvistools
         }
 
         return it->second.get();
+    }
+
+    QModelIndex GmodTreeModel::indexForDisplayedPath(
+        const std::vector<const dnv::vista::sdk::GmodNode*>& displayedPath) const
+    {
+        QModelIndex current{ index(0, 0, {}) };
+
+        for (std::size_t i{ 1 }; i < displayedPath.size(); ++i)
+        {
+            const auto* parentNode{ static_cast<NodeHandle*>(current.internalPointer())->node };
+            const auto* targetNode{ displayedPath[i] };
+
+            if (viscore::gmod::effectiveNode(*parentNode) == targetNode)
+            {
+                continue;
+            }
+
+            const auto& children{ cachedSortedChildren(*parentNode) };
+            const auto it{ std::find(children.begin(), children.end(), targetNode) };
+            if (it == children.end())
+            {
+                return {};
+            }
+
+            current = index(static_cast<int>(it - children.begin()), 0, current);
+            if (!current.isValid())
+            {
+                return {};
+            }
+        }
+
+        return current;
     }
 
     const std::vector<const dnv::vista::sdk::GmodNode*>& GmodTreeModel::cachedSortedChildren(

@@ -36,5 +36,6 @@ namespace qvistools
     signals:
         void unmapRequested();
         void pathEdited(const dnv::vista::sdk::GmodPath& path);
+        void revealInTreeRequested(const dnv::vista::sdk::GmodPath& path);
     };
 } // namespace qvistools

@@ -66,6 +66,11 @@ namespace qvistools
             });
         }
 
+        auto* revealAction{ menu->addAction(tr("Reveal in tree")) };
+        QObject::connect(revealAction, &QAction::triggered, this, [this, path{ *m_path }]() {
+            emit revealInTreeRequested(path);
+        });
+
         auto* unmapAction{ menu->addAction(tr("Unmap")) };
         QObject::connect(unmapAction, &QAction::triggered, this, &GmodPathItemSlot::unmapRequested);
 
