@@ -1,6 +1,7 @@
 #include <viscore/gmod/GmodNodeResolution.h>
 #include <viscore/utils/StringUtils.h>
 
+#include <dnv/vista/sdk/core/GmodPath.h>
 #include <dnv/vista/sdk/core/VIS.h>
 
 #include <algorithm>
@@ -101,6 +102,96 @@ TEST_SUITE("GmodNode resolution")
             CHECK(
                 viscore::utils::naturalCompare(children[i - 1]->code(), children[i]->code()) !=
                 std::strong_ordering::greater);
+        }
+    }
+}
+
+TEST_SUITE("resolveDisplayedPath")
+{
+    TEST_CASE("a GmodPath always starts at the gmod root node")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+        const auto& locations{ vis.locations(vis.latest()) };
+
+        const auto path{ dnv::vista::sdk::GmodPath::fromShortPath("411.1/C101.31-2", gmod, locations) };
+        REQUIRE(path.has_value());
+
+        CHECK(path->parents()[0].code() == gmod.rootNode().code());
+    }
+
+    TEST_CASE("resolves a simple path to its displayed node sequence")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+        const auto& locations{ vis.locations(vis.latest()) };
+
+        const auto path{ dnv::vista::sdk::GmodPath::fromShortPath("411.1/C101.31-2", gmod, locations) };
+        REQUIRE(path.has_value());
+
+        const auto displayed{ viscore::gmod::resolveDisplayedPath(gmod, *path) };
+        REQUIRE(displayed.has_value());
+
+        REQUIRE_FALSE(displayed->empty());
+        CHECK(displayed->front() == &gmod.rootNode());
+        CHECK(displayed->back()->code() == path->node().code());
+    }
+
+    TEST_CASE("resolves a path through a skipped product selection parent")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+
+        const auto& node{ gmod["411.2"] };
+        REQUIRE(node.productSelection().has_value());
+        const auto* productSelection{ *node.productSelection() };
+        REQUIRE_FALSE(productSelection->children().isEmpty());
+
+        const auto* child{ productSelection->children()[0] };
+
+        std::vector<dnv::vista::sdk::GmodNode> ancestors;
+        for (const auto* ancestor{ node.parents()[0] }; ancestor != &gmod.rootNode(); ancestor = ancestor->parents()[0])
+        {
+            ancestors.push_back(*ancestor);
+        }
+        std::reverse(ancestors.begin(), ancestors.end());
+
+        std::vector<dnv::vista::sdk::GmodNode> parents{ gmod.rootNode() };
+        parents.insert(parents.end(), ancestors.begin(), ancestors.end());
+        parents.push_back(node);
+        parents.push_back(*productSelection);
+
+        const dnv::vista::sdk::GmodPath path{ std::move(parents), *child };
+
+        const auto displayed{ viscore::gmod::resolveDisplayedPath(gmod, path) };
+        REQUIRE(displayed.has_value());
+        CHECK(displayed->back() == child);
+    }
+
+    TEST_CASE("round-trips: sortedChildren navigation matches resolveDisplayedPath for the same path")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+        const auto& locations{ vis.locations(vis.latest()) };
+
+        const auto path{ dnv::vista::sdk::GmodPath::fromShortPath("411.1/C101.31-2", gmod, locations) };
+        REQUIRE(path.has_value());
+
+        const auto displayed{ viscore::gmod::resolveDisplayedPath(gmod, *path) };
+        REQUIRE(displayed.has_value());
+
+        for (std::size_t i{ 1 }; i < displayed->size(); ++i)
+        {
+            const auto* parent{ (*displayed)[i - 1] };
+            const auto* child{ (*displayed)[i] };
+
+            if (viscore::gmod::effectiveNode(*parent) == child)
+            {
+                continue;
+            }
+
+            const auto children{ viscore::gmod::sortedChildren(*parent) };
+            CHECK(std::find(children.begin(), children.end(), child) != children.end());
         }
     }
 }

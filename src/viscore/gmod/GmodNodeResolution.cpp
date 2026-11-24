@@ -2,7 +2,9 @@
 
 #include "viscore/utils/StringUtils.h"
 
+#include <dnv/vista/sdk/core/Gmod.h>
 #include <dnv/vista/sdk/core/GmodNode.h>
+#include <dnv/vista/sdk/core/GmodPath.h>
 
 #include <algorithm>
 #include <compare>
@@ -38,5 +40,38 @@ namespace viscore::gmod
             });
 
         return children;
+    }
+
+    std::optional<std::vector<const dnv::vista::sdk::GmodNode*>> resolveDisplayedPath(
+        const dnv::vista::sdk::Gmod& gmod, const dnv::vista::sdk::GmodPath& path)
+    {
+        std::vector<const dnv::vista::sdk::GmodNode*> displayed{ &gmod.rootNode() };
+
+        for (std::size_t i{ 1 }; i < path.length(); ++i)
+        {
+            const auto targetNodeOpt{ gmod.node(path[i].code()) };
+            if (!targetNodeOpt.has_value())
+            {
+                return std::nullopt;
+            }
+            const auto* targetNode{ *targetNodeOpt };
+
+            const auto* parentNode{ displayed.back() };
+            const auto* effectiveParent{ effectiveNode(*parentNode) };
+            if (effectiveParent == targetNode)
+            {
+                continue;
+            }
+
+            const auto children{ sortedChildren(*parentNode) };
+            if (std::find(children.begin(), children.end(), targetNode) == children.end())
+            {
+                return std::nullopt;
+            }
+
+            displayed.push_back(targetNode);
+        }
+
+        return displayed;
     }
 } // namespace viscore::gmod
