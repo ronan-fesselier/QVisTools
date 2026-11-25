@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}
     Id/IdErrorsWidget.cpp
     Id/IdPanel.cpp
     Id/LocalIdBuilderWidget.cpp
+    Id/LocalIdConversionDialog.cpp
     Id/MetadataTagRow.cpp
     Id/ParseIdWidget.cpp
     Id/UniversalIdBuilderWidget.cpp
