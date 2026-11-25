@@ -63,3 +63,57 @@ TEST_SUITE("LocalId")
         CHECK(result.errors.front().type == viscore::id::LocalIdBuildErrorType::InvalidTag);
     }
 }
+
+TEST_SUITE("convertLocalId")
+{
+    TEST_CASE("convertLocalId converts a LocalIdBuilder from an older VIS version to the latest")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+
+        constexpr auto sourceVersion{ dnv::vista::sdk::VisVersion::v3_4a };
+        const auto& sourceGmod{ vis.gmod(sourceVersion) };
+        const auto& sourceLocations{ vis.locations(sourceVersion) };
+
+        const auto primaryItem{ dnv::vista::sdk::GmodPath::fromShortPath(
+            "411.1/C101.31-2", sourceGmod, sourceLocations) };
+        REQUIRE(primaryItem.has_value());
+
+        const auto builderResult{ viscore::id::buildLocalIdBuilder(
+            sourceVersion,
+            primaryItem,
+            std::nullopt,
+            { { dnv::vista::sdk::CodebookName::Quantity, "temperature" } },
+            false) };
+        REQUIRE(builderResult.builder.has_value());
+
+        const auto result{ viscore::id::convertLocalId(*builderResult.builder, vis.latest()) };
+
+        REQUIRE(result.builder.has_value());
+        CHECK(result.errors.empty());
+        CHECK(result.builder->version() == vis.latest());
+    }
+
+    TEST_CASE("convertLocalId reports an error when the target version is not strictly greater than the source")
+    {
+        const auto& vis{ dnv::vista::sdk::VIS::instance() };
+        const auto& gmod{ vis.gmod(vis.latest()) };
+        const auto& locations{ vis.locations(vis.latest()) };
+
+        const auto primaryItem{ dnv::vista::sdk::GmodPath::fromShortPath("411.1/C101.31-2", gmod, locations) };
+        REQUIRE(primaryItem.has_value());
+
+        const auto builderResult{ viscore::id::buildLocalIdBuilder(
+            vis.latest(),
+            primaryItem,
+            std::nullopt,
+            { { dnv::vista::sdk::CodebookName::Quantity, "temperature" } },
+            false) };
+        REQUIRE(builderResult.builder.has_value());
+
+        const auto result{ viscore::id::convertLocalId(*builderResult.builder, vis.latest()) };
+
+        CHECK_FALSE(result.builder.has_value());
+        REQUIRE_FALSE(result.errors.empty());
+        CHECK(result.errors.front().type == viscore::id::LocalIdConvertErrorType::ValidationError);
+    }
+}

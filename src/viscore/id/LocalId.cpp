@@ -76,4 +76,27 @@ namespace viscore::id
             return { std::nullopt, { { LocalIdBuildErrorType::ValidationError, e.what() } } };
         }
     }
+
+    LocalIdConvertResult convertLocalId(
+        const dnv::vista::sdk::LocalIdBuilder& builder, dnv::vista::sdk::VisVersion targetVersion)
+    {
+        try
+        {
+            const auto& vis{ dnv::vista::sdk::VIS::instance() };
+
+            auto converted{ vis.convertLocalId(builder, targetVersion) };
+            if (!converted.has_value())
+            {
+                return { std::nullopt,
+                         { { LocalIdConvertErrorType::ConversionFailed,
+                             "This Local ID could not be converted to the target VIS version" } } };
+            }
+
+            return { std::move(converted), {} };
+        }
+        catch (const std::exception& e)
+        {
+            return { std::nullopt, { { LocalIdConvertErrorType::ValidationError, e.what() } } };
+        }
+    }
 } // namespace viscore::id

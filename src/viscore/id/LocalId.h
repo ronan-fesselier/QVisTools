@@ -54,4 +54,25 @@ namespace viscore::id
         const std::optional<dnv::vista::sdk::GmodPath>& secondaryItem,
         const std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>>& tags,
         bool verbose);
+
+    enum class LocalIdConvertErrorType
+    {
+        ConversionFailed = 0,
+        ValidationError
+    };
+
+    struct LocalIdConvertError
+    {
+        LocalIdConvertErrorType type;
+        std::string message;
+    };
+
+    struct LocalIdConvertResult
+    {
+        std::optional<dnv::vista::sdk::LocalIdBuilder> builder;
+        std::vector<LocalIdConvertError> errors;
+    };
+
+    [[nodiscard]] LocalIdConvertResult convertLocalId(
+        const dnv::vista::sdk::LocalIdBuilder& builder, dnv::vista::sdk::VisVersion targetVersion);
 } // namespace viscore::id
