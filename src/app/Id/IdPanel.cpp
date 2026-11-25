@@ -70,11 +70,13 @@ namespace qvistools
         QObject::connect(
             m_builder, &LocalIdBuilderWidget::secondaryItemUnmapRequested, this, &IdPanel::secondaryItemUnmapRequested);
         QObject::connect(m_builder, &LocalIdBuilderWidget::revealPathRequested, this, &IdPanel::revealPathRequested);
+        QObject::connect(
+            m_builder, &LocalIdBuilderWidget::localIdVersionConverted, this, &IdPanel::localIdVersionChanged);
 
         QObject::connect(m_parseId, &ParseIdWidget::idParsed, this, [this](const viscore::id::ParsedId& parsed) {
             if (parsed.version != m_version)
             {
-                emit existingIdVersionParsed(parsed.version);
+                emit localIdVersionChanged(parsed.version);
             }
 
             m_builder->applyParsedId(parsed.primaryItem, parsed.secondaryItem, parsed.tags, parsed.verbose);

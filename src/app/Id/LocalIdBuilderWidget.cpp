@@ -3,6 +3,7 @@
 #include "app/detail/QStringUtils.h"
 #include "GmodPathItemSlot.h"
 #include "IdLayoutConstants.h"
+#include "LocalIdConversionDialog.h"
 #include "MetadataTagRow.h"
 
 #include <viscore/codebooks/CodebookValues.h>
@@ -114,7 +115,8 @@ namespace qvistools
           m_metadataRows{},
           m_verboseCheckBox{ new QCheckBox{ tr("Verbose"), this } },
           m_localIdValue{ new QLineEdit{ this } },
-          m_copyButton{ new QPushButton{ tr("Copy"), this } }
+          m_copyButton{ new QPushButton{ tr("Copy"), this } },
+          m_convertButton{ new QPushButton{ tr("Convert..."), this } }
     {
         setupLayout();
         setupConnections();
@@ -164,6 +166,17 @@ namespace qvistools
         rebuildLocalId();
     }
 
+    void LocalIdBuilderWidget::applyConvertedBuilder(const dnv::vista::sdk::LocalIdBuilder& builder)
+    {
+        std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>> tags;
+        for (const auto& tag : builder.metadataTags())
+        {
+            tags.emplace_back(tag.name(), tag.value());
+        }
+
+        applyParsedId(builder.primaryItem(), builder.secondaryItem(), tags, builder.isVerboseMode());
+    }
+
     void LocalIdBuilderWidget::setVisVersion(dnv::vista::sdk::VisVersion version)
     {
         m_version = version;
@@ -205,6 +218,7 @@ namespace qvistools
         localIdLayout->addWidget(m_localIdValue, 1);
         localIdLayout->addWidget(m_verboseCheckBox);
         localIdLayout->addWidget(m_copyButton);
+        localIdLayout->addWidget(m_convertButton);
         grid->addLayout(localIdLayout, resultRow, 0, 1, m_metadataColumn + 1);
 
         grid->setRowStretch(resultRow + 1, 1);
@@ -227,6 +241,8 @@ namespace qvistools
 
         QObject::connect(
             m_copyButton, &QPushButton::clicked, this, [this]() { QApplication::clipboard()->setText(m_localIdText); });
+
+        QObject::connect(m_convertButton, &QPushButton::clicked, this, &LocalIdBuilderWidget::convertToAnotherVersion);
 
         QObject::connect(
             m_primaryItemSlot, &GmodPathItemSlot::pathEdited, this, [this](const dnv::vista::sdk::GmodPath& path) {
@@ -302,7 +318,9 @@ namespace qvistools
     void LocalIdBuilderWidget::rebuildLocalId()
     {
         m_localIdText.clear();
+        m_currentBuilder.reset();
         m_copyButton->setEnabled(false);
+        m_convertButton->setEnabled(false);
 
         std::vector<std::pair<dnv::vista::sdk::CodebookName, std::string>> tags;
         for (const auto* row : m_metadataRows)
@@ -350,8 +368,30 @@ namespace qvistools
 
         m_localIdValue->setText(m_localIdText);
         m_copyButton->setEnabled(true);
+        m_convertButton->setEnabled(m_version != dnv::vista::sdk::VIS::instance().latest());
+        m_currentBuilder = builderResult.builder;
 
         emit errorsChanged({});
         emit localIdBuilderChanged(builderResult.builder);
+    }
+
+    void LocalIdBuilderWidget::convertToAnotherVersion()
+    {
+        if (!m_currentBuilder.has_value())
+        {
+            return;
+        }
+
+        LocalIdConversionDialog dialog{ *m_currentBuilder, this };
+        if (dialog.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+
+        const auto convertedBuilder{ dialog.result() };
+        const auto targetVersion{ *convertedBuilder.version() };
+
+        emit localIdVersionConverted(targetVersion);
+        applyConvertedBuilder(convertedBuilder);
     }
 } // namespace qvistools
